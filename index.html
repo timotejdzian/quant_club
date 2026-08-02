@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prague Quant Club</title>
+  <meta name="description" content="Prague Quant Club — studentská komunita zaměřená na kvantitativní finance, trading a trhy v Praze.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <a class="skip-link" href="#main">Přeskočit na obsah</a>
+
+  <!-- ============ NAV ============ -->
+  <header class="site-header" id="site-header">
+    <nav class="nav container" aria-label="Hlavní navigace">
+      <a class="nav-brand" href="#hero">Prague Quant Club</a>
+
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Otevřít menu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="#about">O nás</a></li>
+        <li><a href="#calendar">Kalendář</a></li>
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ SEKCE 1 — HERO ============ -->
+    <section class="hero" id="hero" aria-label="Úvod">
+      <div class="hero-inner">
+        <!-- Pokud do /assets přidáte bílé logo, odkomentujte řádek níže: -->
+        <!-- <img class="hero-logo" src="assets/logo-white.png" alt="Logo Prague Quant Club"> -->
+        <h1 class="hero-title">Prague Quant Club</h1>
+        <p class="hero-tagline">Kde se matematika potkává s trhy — studentská komunita kvantitativních financí v Praze.</p>
+        <div class="hero-actions">
+          <a class="btn btn-outline" href="#calendar">Nadcházející akce</a>
+          <a class="btn btn-filled" href="#contact">Přidej se k nám</a>
+        </div>
+      </div>
+      <a class="scroll-indicator" href="#about" aria-label="Přejít na sekci O nás">
+        <span class="scroll-indicator-line"></span>
+      </a>
+    </section>
+
+    <!-- ============ SEKCE 2 — O NÁS ============ -->
+    <section class="section" id="about" aria-labelledby="about-heading">
+      <div class="container">
+        <p class="eyebrow reveal">01&nbsp;O&nbsp;nás</p>
+        <h2 class="section-heading reveal" id="about-heading">Komunita kvantitativně smýšlejících studentů v srdci Prahy.</h2>
+        <p class="section-lede reveal">
+          Prague Quant Club spojuje studenty, které zajímá, jak matematika,
+          statistika a programování utvářejí moderní finanční trhy. Během
+          akademického roku pořádáme workshopy, přednášky hostů z praxe a
+          tradingové soutěže, otevřené studentům všech pražských univerzit.
+          Předchozí zkušenosti s financemi nejsou potřeba — stačí zvědavost
+          a chuť pouštět se do těžkých problémů. Naši členové míří na stáže
+          a pozice v tradingových firmách, bankách a fondech po celé Evropě.
+        </p>
+
+        <!-- Řádek se statistikami -->
+        <div class="stats reveal" role="list">
+          <div class="stat" role="listitem">
+            <span class="stat-number">##</span>
+            <span class="stat-label">Členů</span>
+          </div>
+          <div class="stat" role="listitem">
+            <span class="stat-number">##</span>
+            <span class="stat-label">Semestrů fungování</span>
+          </div>
+          <div class="stat" role="listitem">
+            <span class="stat-number">##</span>
+            <span class="stat-label">Partnerských firem</span>
+          </div>
+        </div>
+
+        <!-- Mřížka karet -->
+        <div class="card-grid">
+          <article class="card reveal">
+            <span class="card-index">01</span>
+            <h3 class="card-heading">Náš cíl</h3>
+            <p>
+              Dát studentům v Praze seriózní a přátelské místo, kde se mohou
+              učit kvantitativní finance. Propojujeme školní výuku
+              s dovednostmi, které tradingové firmy a fondy skutečně hledají.
+            </p>
+          </article>
+          <article class="card reveal">
+            <span class="card-index">02</span>
+            <h3 class="card-heading">Akce</h3>
+            <p>
+              Praktické workshopy v Pythonu a statistice, přednášky lidí
+              z kvantitativních firem, market-makingové hry a semestrální
+              tradingová soutěž o skutečné ceny.
+            </p>
+          </article>
+          <article class="card reveal">
+            <span class="card-index">03</span>
+            <h3 class="card-heading">Formát</h3>
+            <p>
+              Během semestru se scházíme zhruba každé dva týdny. Setkání
+              trvají přibližně dvě hodiny a vždy zbyde čas na občerstvení
+              a neformální povídání.
+            </p>
+          </article>
+          <article class="card reveal">
+            <span class="card-index">04</span>
+            <h3 class="card-heading">Kdo jsme</h3>
+            <p>
+              Studenti matematiky, informatiky, ekonomie a fyziky z univerzit
+              po celé Praze. Někteří z nás obchodují, jiní programují —
+              všichni rádi řešíme hlavolamy.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- ============ SEKCE 3 — KALENDÁŘ ============ -->
+    <section class="section" id="calendar" aria-labelledby="calendar-heading">
+      <div class="container">
+        <p class="eyebrow reveal">02&nbsp;Kalendář</p>
+        <h2 class="section-heading reveal" id="calendar-heading">Kalendář</h2>
+
+        <h3 class="subheading reveal">Nadcházející</h3>
+        <div id="upcoming-events" class="event-list reveal">
+          <!-- Vykresluje script.js -->
+        </div>
+
+        <h3 class="subheading reveal">Proběhlé akce</h3>
+        <div id="past-events" class="reveal">
+          <!-- Vykresluje script.js -->
+        </div>
+        <button class="toggle-semesters" id="toggle-semesters" aria-expanded="false" hidden>
+          Zobrazit všechny semestry
+        </button>
+      </div>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- ============ SEKCE 4 — KONTAKT ============ -->
+    <section class="section" id="contact" aria-labelledby="contact-heading">
+      <div class="container">
+        <p class="eyebrow reveal">03&nbsp;Kontakt</p>
+        <h2 class="section-heading reveal" id="contact-heading">Ozvěte se nám.</h2>
+        <div class="contact-block reveal">
+          <p class="contact-email">
+            <a href="mailto:hello@praguequant.cz">hello@praguequant.cz</a>
+          </p>
+          <ul class="contact-socials">
+            <li><a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="https://linkedin.com/company/prague-quant-club" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a href="https://discord.gg/praguequant" target="_blank" rel="noopener">Discord</a></li>
+          </ul>
+          <p class="contact-meta">
+            Otevřeno studentům všech pražských univerzit.<br>
+            Pravidelná setkání probíhají na Vysoké škole ekonomické v Praze
+            (VŠE), náměstí Winstona Churchilla 4, Praha 3.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ PATIČKA ============ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">Prague Quant Club</p>
+      <ul class="footer-nav" aria-label="Navigace v patičce">
+        <li><a href="#about">O nás</a></li>
+        <li><a href="#calendar">Kalendář</a></li>
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+      <ul class="footer-socials" aria-label="Sociální sítě">
+        <li><a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://linkedin.com/company/prague-quant-club" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://discord.gg/praguequant" target="_blank" rel="noopener">Discord</a></li>
+      </ul>
+      <p class="footer-legal">
+        &copy; <span id="footer-year">2026</span> Prague Quant Club.
+        Klub je studentská iniciativa a jedná nezávisle na univerzitě.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

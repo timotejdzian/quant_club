@@ -1,0 +1,735 @@
+/* ==========================================================================
+   PRAGUE QUANT CLUB — STYLESHEET
+   --------------------------------------------------------------------------
+   Sections in this file:
+     1. Variables (colors, fonts — EDIT HERE to re-theme the whole site)
+     2. Reset & base
+     3. Skip link (accessibility)
+     4. Navigation bar
+     5. Hero
+     6. Shared section styles (eyebrow, headings, rules)
+     7. About (stats + card grid)
+     8. Calendar (event lists)
+     9. Contact
+     10. Footer
+     11. Reveal-on-scroll animation
+     12. Responsive breakpoints (1024px, 768px)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. VARIABLES — colors and fonts live here.
+   Change --accent to re-color every link/hover on the site.
+   ========================================================================== */
+:root {
+  --bg: #fafafa;              /* page background (near-white) */
+  --bg-card: #ffffff;         /* card / solid surfaces */
+  --text: #111111;            /* main text (near-black) */
+  --text-muted: #6b6b6b;      /* secondary text, labels, locations */
+  --accent: #1a56db;          /* ONE accent color: links + hovers only */
+  --rule: #e2e2e2;            /* hairline rules and borders */
+
+  --font-heading: Georgia, "Times New Roman", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+
+  --container: 1200px;        /* max content width */
+  --section-pad: 120px;       /* vertical whitespace between sections */
+}
+
+
+/* ==========================================================================
+   2. RESET & BASE
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+}
+
+/* Visible focus states everywhere (accessibility) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+
+/* ==========================================================================
+   3. SKIP LINK — hidden until focused with the keyboard
+   ========================================================================== */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 16px;
+  z-index: 200;
+  background: var(--text);
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 3px;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+
+/* ==========================================================================
+   4. NAVIGATION BAR
+   Frosted bar visible everywhere, including over the hero: slightly
+   transparent version of the page background with a blur, dark text.
+   ========================================================================== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(250, 250, 250, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.nav-brand {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.nav-brand:hover,
+.nav-brand:focus-visible {
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-menu a {
+  color: var(--text);
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.nav-menu a:hover {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+/* Hamburger button — hidden on desktop, shown under 768px */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-toggle-bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--text);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hamburger → X when open */
+.site-header.menu-open .nav-toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.site-header.menu-open .nav-toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.site-header.menu-open .nav-toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+
+/* ==========================================================================
+   5. HERO
+   Full viewport height. Put a photo at assets/hero.jpg and it will show
+   automatically; until then the dark gradient below stands alone.
+   ========================================================================== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  background-color: #16181d; /* fallback if the photo is missing */
+  background-image:
+    linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.25) 55%, rgba(0, 0, 0, 0.15) 100%),
+    url("assets/hero.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-inner {
+  padding: 0 24px;
+  max-width: 820px;
+}
+
+.hero-logo {
+  height: 88px;
+  width: auto;
+  margin: 0 auto 28px;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.hero-tagline {
+  margin-top: 20px;
+  font-size: 19px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.hero-actions {
+  margin-top: 40px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  border-radius: 3px;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  text-decoration: none;
+}
+
+.btn-outline {
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
+}
+
+.btn-filled {
+  color: #111111;
+  background: #ffffff;
+  border: 1px solid #ffffff;
+}
+
+.btn-filled:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Small scroll indicator at the bottom edge of the hero */
+.scroll-indicator {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scroll-indicator-line {
+  display: block;
+  width: 1px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.7);
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes scroll-pulse {
+  0%, 100% { transform: scaleY(1); opacity: 0.7; }
+  50%      { transform: scaleY(0.55); opacity: 1; }
+}
+
+.scroll-indicator-line { transform-origin: top; }
+
+
+/* ==========================================================================
+   6. SHARED SECTION STYLES
+   Eyebrow labels ("01 About"), big headings, hairline rules.
+   ========================================================================== */
+.section {
+  padding: var(--section-pad) 0;
+}
+
+/* Eyebrow: small monospace tag above each section heading */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.section-heading {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 820px;
+}
+
+.section-lede {
+  margin-top: 28px;
+  max-width: 720px;
+  font-size: 18px;
+  color: #333333;
+}
+
+.subheading {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 64px;
+  margin-bottom: 24px;
+}
+
+/* Hairline rule between sections */
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+
+/* ==========================================================================
+   7. ABOUT — stats row + numbered card grid
+   ========================================================================== */
+.stats {
+  display: flex;
+  gap: 80px;
+  margin-top: 72px;
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Card grid: 2x2 on desktop, single column on mobile.
+   Cards are deliberately plain — thin top rule only. */
+.card-grid {
+  margin-top: 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px 64px;
+}
+
+.card {
+  border-top: 1px solid var(--rule);
+  padding-top: 24px;
+}
+
+.card-index {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.card-heading {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 10px 0 12px;
+}
+
+.card p {
+  color: #333333;
+  font-size: 16px;
+}
+
+
+/* ==========================================================================
+   8. CALENDAR — upcoming rows + past events grouped by semester
+   (The lists themselves are rendered by script.js.)
+   ========================================================================== */
+.event-list {
+  border-top: 1px solid var(--rule);
+}
+
+.event-row {
+  display: flex;
+  align-items: baseline;
+  gap: 32px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Fixed-width date column so titles align */
+.event-date {
+  flex: 0 0 130px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.event-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.event-location {
+  margin-left: auto;
+  font-size: 15px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Fallback line when there are no upcoming events */
+.event-empty {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--text-muted);
+}
+
+/* Past events: one .semester-group per semester */
+.semester-group {
+  margin-bottom: 40px;
+}
+
+.semester-heading {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.semester-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 10px;
+}
+
+/* Collapsed semesters are hidden until the toggle is pressed */
+.semester-group.collapsed {
+  display: none;
+}
+
+/* "Show all semesters" toggle button */
+.toggle-semesters {
+  margin-top: 8px;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.toggle-semesters:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+
+/* ==========================================================================
+   9. CONTACT
+   ========================================================================== */
+.contact-block {
+  margin-top: 40px;
+}
+
+.contact-email a {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.contact-email a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.contact-socials {
+  list-style: none;
+  display: flex;
+  gap: 32px;
+  margin-top: 28px;
+}
+
+.contact-socials a {
+  font-size: 16px;
+}
+
+.contact-meta {
+  margin-top: 40px;
+  max-width: 560px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+
+/* ==========================================================================
+   10. FOOTER
+   ========================================================================== */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 64px 0;
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.footer-brand {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.footer-nav,
+.footer-socials {
+  list-style: none;
+  display: flex;
+  gap: 28px;
+}
+
+.footer-nav a,
+.footer-socials a {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.footer-nav a:hover,
+.footer-socials a:hover {
+  color: var(--accent);
+}
+
+.footer-legal {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+
+/* ==========================================================================
+   11. REVEAL-ON-SCROLL — subtle fade-and-rise (driven by IntersectionObserver
+   in script.js). Nothing else on the page animates.
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .scroll-indicator-line { animation: none; }
+}
+
+
+/* ==========================================================================
+   12. RESPONSIVE
+   ========================================================================== */
+
+/* --- Tablet: up to 1024px --- */
+@media (max-width: 1024px) {
+  :root {
+    --section-pad: 96px;
+  }
+
+  .hero-title {
+    font-size: 56px;
+  }
+
+  .section-heading {
+    font-size: 40px;
+  }
+
+  .stats {
+    gap: 56px;
+  }
+
+  .card-grid {
+    gap: 48px;
+  }
+}
+
+/* --- Mobile: up to 768px --- */
+@media (max-width: 768px) {
+  :root {
+    --section-pad: 80px;
+  }
+
+  body {
+    font-size: 16px;
+  }
+
+  .container {
+    padding: 0 20px;
+  }
+
+  .hero-title {
+    font-size: 40px;
+  }
+
+  .hero-tagline {
+    font-size: 17px;
+  }
+
+  .section-heading {
+    font-size: 32px;
+  }
+
+  /* Mobile nav: hamburger + dropdown panel */
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: #ffffff;
+    border-bottom: 1px solid var(--rule);
+    display: none;
+  }
+
+  .site-header.menu-open .nav-menu {
+    display: flex;
+  }
+
+  .site-header.menu-open {
+    background: #ffffff;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .site-header.menu-open .nav-brand {
+    color: var(--text);
+  }
+
+  .nav-menu a {
+    display: block;
+    padding: 16px 20px;
+    color: var(--text);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Stats stack vertically */
+  .stats {
+    flex-direction: column;
+    gap: 36px;
+    margin-top: 56px;
+  }
+
+  /* Cards single column */
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 56px;
+  }
+
+  /* Event rows wrap: date above, location below title */
+  .event-row {
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  .event-date {
+    flex: 0 0 100%;
+  }
+
+  .event-location {
+    margin-left: 0;
+    text-align: left;
+    flex: 0 0 100%;
+  }
+}
