@@ -87,12 +87,6 @@ var I18N_EN = {
     "single faculty or school, anyone with a genuine interest in the field " +
     "is welcome to join.",
 
-  "partners.eyebrow": "Partners",
-  "partners.heading": "Firms that speak our language.",
-  "partners.lede":
-    "We work with leading quantitative firms, from talks and workshops to " +
-    "recruiting our members.",
-  "partners.label1": "// club partners",
   "partners.label2": "// events with",
   "partners.note": 'Want to become a partner of the club? <a href="#contact">Get in touch.</a>',
 

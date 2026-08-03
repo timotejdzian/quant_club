@@ -401,10 +401,7 @@ a:focus-visible {
 
 /* Hairline rule between sections */
 .section-rule {
-  border: none;
-  border-top: 1px solid var(--rule);
-  max-width: var(--container);
-  margin: 0 auto;
+  display: none;
 }
 
 
@@ -473,9 +470,14 @@ a:focus-visible {
    8. PARTNERS — infinite scrolling logo line (marquee), à la QFC Zürich.
    The track holds the logo set TWICE; sliding it by -50% loops seamlessly.
    ========================================================================== */
+/* Minimal partners section with reduced padding */
+.section--partners-minimal {
+  padding: 64px 0;
+}
+
 /* Small mono label above each logo line */
 .marquee-label {
-  margin-top: 64px;
+  margin-top: 0;
   font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.1em;
@@ -839,9 +841,13 @@ a:focus-visible {
     margin-top: 56px;
   }
 
+  /* Minimal partners section on mobile */
+  .section--partners-minimal {
+    padding: 48px 0;
+  }
+
   /* Partner line: slightly smaller and tighter on mobile */
   .partner-marquee {
-    margin-top: 48px;
     padding: 28px 0;
   }
 
