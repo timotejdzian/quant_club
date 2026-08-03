@@ -88,6 +88,7 @@ var I18N_EN = {
     "is welcome to join.",
 
   "partners.label2": "// events with",
+  "partners.tba": "to be announced",
   "partners.note": 'Want to become a partner of the club? <a href="#contact">Get in touch.</a>',
 
   "calendar.eyebrow": "Calendar",
