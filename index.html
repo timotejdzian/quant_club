@@ -4,29 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prague Quant Club</title>
-  <meta name="description" content="Prague Quant Club — studentská komunita zaměřená na kvantitativní finance, trading a trhy v Praze.">
+  <meta name="description" content="Prague Quant Club, studentská komunita zaměřená na kvantitativní finance, trading a trhy v Praze.">
+  <link rel="canonical" href="https://praguequantclub.org/">
+  <meta property="og:title" content="Prague Quant Club">
+  <meta property="og:url" content="https://praguequantclub.org/">
+  <meta property="og:description" content="Studentská komunita kvantitativních financí v Praze.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <a class="skip-link" href="#main">Přeskočit na obsah</a>
+  <a class="skip-link" href="#main" data-i18n="skip">Přeskočit na obsah</a>
 
   <!-- ============ NAV ============ -->
   <header class="site-header" id="site-header">
     <nav class="nav container" aria-label="Hlavní navigace">
-      <a class="nav-brand" href="#hero">Prague Quant Club</a>
+      <a class="nav-brand" href="#hero">praguequantclub.org<span class="nav-brand-cursor">_</span></a>
 
-      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Otevřít menu">
-        <span class="nav-toggle-bar"></span>
-        <span class="nav-toggle-bar"></span>
-        <span class="nav-toggle-bar"></span>
-      </button>
+      <div class="nav-right">
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#about" data-i18n="nav.about">O nás</a></li>
+          <li><a href="#partners" data-i18n="nav.partners">Partneři</a></li>
+          <li><a href="#calendar" data-i18n="nav.calendar">Kalendář</a></li>
+          <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
+        </ul>
 
-      <ul class="nav-menu" id="nav-menu">
-        <li><a href="#about">O nás</a></li>
-        <li><a href="#calendar">Kalendář</a></li>
-        <li><a href="#contact">Kontakt</a></li>
-      </ul>
+        <!-- Přepínač jazyka — obsluhuje script.js -->
+        <button class="lang-toggle" id="lang-toggle" aria-label="Switch to English">EN</button>
+
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Otevřít menu">
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -34,14 +47,14 @@
 
     <!-- ============ SEKCE 1 — HERO ============ -->
     <section class="hero" id="hero" aria-label="Úvod">
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-inner">
-        <!-- Pokud do /assets přidáte bílé logo, odkomentujte řádek níže: -->
-        <!-- <img class="hero-logo" src="assets/logo-white.png" alt="Logo Prague Quant Club"> -->
-        <h1 class="hero-title">Prague Quant Club</h1>
-        <p class="hero-tagline">Kde se matematika potkává s trhy — studentská komunita kvantitativních financí v Praze.</p>
+        <h1 class="hero-title">Prague<br>Quant Club</h1>
+        <p class="hero-tagline" data-i18n="hero.tagline">Kde se matematika potkává s trhy.</p>
         <div class="hero-actions">
-          <a class="btn btn-outline" href="#calendar">Nadcházející akce</a>
-          <a class="btn btn-filled" href="#contact">Přidej se k nám</a>
+          <a class="btn btn-filled" href="#contact" data-i18n="hero.ctaJoin">Přidej se k nám</a>
+          <a class="btn btn-outline" href="#calendar" data-i18n="hero.ctaEvents">Nadcházející akce</a>
         </div>
       </div>
       <a class="scroll-indicator" href="#about" aria-label="Přejít na sekci O nás">
@@ -52,70 +65,68 @@
     <!-- ============ SEKCE 2 — O NÁS ============ -->
     <section class="section" id="about" aria-labelledby="about-heading">
       <div class="container">
-        <p class="eyebrow reveal">01&nbsp;O&nbsp;nás</p>
-        <h2 class="section-heading reveal" id="about-heading">Komunita kvantitativně smýšlejících studentů v srdci Prahy.</h2>
-        <p class="section-lede reveal">
+        <p class="eyebrow reveal" data-i18n="about.eyebrow">O&nbsp;nás</p>
+        <h2 class="section-heading reveal" id="about-heading" data-i18n="about.heading">Komunita lidí se zájmem o kvantitativní finance.</h2>
+        <p class="section-lede reveal" data-i18n="about.lede">
           Prague Quant Club spojuje studenty, které zajímá, jak matematika,
-          statistika a programování utvářejí moderní finanční trhy. Během
-          akademického roku pořádáme workshopy, přednášky hostů z praxe a
-          tradingové soutěže, otevřené studentům všech pražských univerzit.
-          Předchozí zkušenosti s financemi nejsou potřeba — stačí zvědavost
-          a chuť pouštět se do těžkých problémů. Naši členové míří na stáže
-          a pozice v tradingových firmách, bankách a fondech po celé Evropě.
+          statistika a programování utvářejí moderní finanční trhy. Scházíme
+          se v Praze po celý akademický rok.
         </p>
 
         <!-- Řádek se statistikami -->
         <div class="stats reveal" role="list">
           <div class="stat" role="listitem">
             <span class="stat-number">##</span>
-            <span class="stat-label">Členů</span>
+            <span class="stat-label" data-i18n="stats.members">Členů</span>
           </div>
           <div class="stat" role="listitem">
             <span class="stat-number">##</span>
-            <span class="stat-label">Semestrů fungování</span>
+            <span class="stat-label" data-i18n="stats.semesters">Semestrů fungování</span>
           </div>
           <div class="stat" role="listitem">
             <span class="stat-number">##</span>
-            <span class="stat-label">Partnerských firem</span>
+            <span class="stat-label" data-i18n="stats.partners">Partnerských firem</span>
           </div>
         </div>
 
         <!-- Mřížka karet -->
         <div class="card-grid">
           <article class="card reveal">
-            <span class="card-index">01</span>
-            <h3 class="card-heading">Náš cíl</h3>
-            <p>
-              Dát studentům v Praze seriózní a přátelské místo, kde se mohou
-              učit kvantitativní finance. Propojujeme školní výuku
-              s dovednostmi, které tradingové firmy a fondy skutečně hledají.
+            <span class="card-index">[01]</span>
+            <h3 class="card-heading" data-i18n="card1.h">Náš cíl</h3>
+            <p data-i18n="card1.p">
+              Dát dohromady lidi, které kvantitativní finance baví, a vytvořit
+              jim prostředí, kde se v oboru posunou dál. Propojujeme školní
+              teorii s dovednostmi, které tradingové firmy a fondy skutečně
+              hledají.
             </p>
           </article>
           <article class="card reveal">
-            <span class="card-index">02</span>
-            <h3 class="card-heading">Akce</h3>
-            <p>
-              Praktické workshopy v Pythonu a statistice, přednášky lidí
-              z kvantitativních firem, market-makingové hry a semestrální
-              tradingová soutěž o skutečné ceny.
+            <span class="card-index">[02]</span>
+            <h3 class="card-heading" data-i18n="card2.h">Akce</h3>
+            <p data-i18n="card2.p">
+              Semináře k oblastem, na kterých quant finance stojí: statistika,
+              lineární algebra, pravděpodobnost, programování. K tomu přednášky
+              a setkání se zástupci quantových firem, příprava na pohovory
+              a večery u pokeru.
             </p>
           </article>
           <article class="card reveal">
-            <span class="card-index">03</span>
-            <h3 class="card-heading">Formát</h3>
-            <p>
-              Během semestru se scházíme zhruba každé dva týdny. Setkání
-              trvají přibližně dvě hodiny a vždy zbyde čas na občerstvení
-              a neformální povídání.
+            <span class="card-index">[03]</span>
+            <h3 class="card-heading" data-i18n="card3.h">Formát</h3>
+            <p data-i18n="card3.p">
+              Scházíme se zhruba jednou za dva týdny během semestru. Kdo splní
+              požadavky na docházku a zadané úlohy, dostane na konci certifikát
+              o absolvování.
             </p>
           </article>
           <article class="card reveal">
-            <span class="card-index">04</span>
-            <h3 class="card-heading">Kdo jsme</h3>
-            <p>
-              Studenti matematiky, informatiky, ekonomie a fyziky z univerzit
-              po celé Praze. Někteří z nás obchodují, jiní programují —
-              všichni rádi řešíme hlavolamy.
+            <span class="card-index">[04]</span>
+            <h3 class="card-heading" data-i18n="card4.h">Kdo za tím stojí</h3>
+            <p data-i18n="card4.p">
+              Klub vznikl na Univerzitě Karlově a vedou ho studenti matematiky,
+              statistiky a ekonomie. Členství není omezené na jednu fakultu ani
+              školu, přijít může kdokoli, kdo má o obor opravdový zájem.
             </p>
           </article>
         </div>
@@ -124,48 +135,88 @@
 
     <hr class="section-rule">
 
-    <!-- ============ SEKCE 3 — KALENDÁŘ ============ -->
+    <!-- ============ SEKCE 3 — PARTNEŘI ============ -->
+    <!-- POZN.: Loga níže jsou pouze ukázková (největší kvantové firmy světa).
+         Až budete mít skutečné partnery, nahraďte názvy / vložte <img>. -->
+    <section class="section" id="partners" aria-labelledby="partners-heading">
+      <div class="container">
+        <p class="eyebrow reveal" data-i18n="partners.eyebrow">Partneři</p>
+        <h2 class="section-heading reveal" id="partners-heading" data-i18n="partners.heading">Firmy, se kterými mluvíme stejným jazykem.</h2>
+        <p class="section-lede reveal" data-i18n="partners.lede">
+          Spolupracujeme s předními kvantitativními firmami, od přednášek
+          a workshopů až po recruiting našich členů.
+        </p>
+
+        <!-- Nekonečně rolující řádek log (marquee). Obsah je zdvojený,
+             aby smyčka byla plynulá — druhá sada je pro čtečky skrytá. -->
+        <p class="marquee-label reveal" data-i18n="partners.label1">// partneři klubu</p>
+        <div class="partner-marquee partner-marquee--static reveal" aria-label="Partneři">
+          <div class="partner-track">
+            <span class="partner-mark">xxxx</span>
+          </div>
+        </div>
+
+        <!-- Druhý řádek — firmy, se kterými pořádáme akce (à la „Events with") -->
+        <p class="marquee-label reveal" data-i18n="partners.label2">// akce pořádáme s</p>
+        <div class="partner-marquee partner-marquee--reverse reveal" aria-label="Firmy, se kterými pořádáme akce">
+          <div class="partner-track">
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark" aria-hidden="true"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark" aria-hidden="true"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark" aria-hidden="true"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark" aria-hidden="true"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+            <a href="https://www.csas.cz" target="_blank" rel="noopener" class="partner-mark" aria-hidden="true"><img src="https://cdn0.erstegroup.com/content/dam/cz/csas/www_csas_cz/obrazky/ikony/logo_cs_2023.svg" alt="Česká spořitelna"></a>
+          </div>
+        </div>
+
+        <p class="partner-note reveal" data-i18n="partners.note">Chcete se stát partnerem klubu? <a href="#contact">Ozvěte se nám.</a></p>
+      </div>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- ============ SEKCE 4 — KALENDÁŘ ============ -->
     <section class="section" id="calendar" aria-labelledby="calendar-heading">
       <div class="container">
-        <p class="eyebrow reveal">02&nbsp;Kalendář</p>
-        <h2 class="section-heading reveal" id="calendar-heading">Kalendář</h2>
+        <p class="eyebrow reveal" data-i18n="calendar.eyebrow">Kalendář</p>
+        <h2 class="section-heading reveal" id="calendar-heading" data-i18n="calendar.heading">Nadcházející akce.</h2>
 
-        <h3 class="subheading reveal">Nadcházející</h3>
         <div id="upcoming-events" class="event-list reveal">
           <!-- Vykresluje script.js -->
         </div>
-
-        <h3 class="subheading reveal">Proběhlé akce</h3>
-        <div id="past-events" class="reveal">
-          <!-- Vykresluje script.js -->
-        </div>
-        <button class="toggle-semesters" id="toggle-semesters" aria-expanded="false" hidden>
-          Zobrazit všechny semestry
-        </button>
       </div>
     </section>
 
     <hr class="section-rule">
 
-    <!-- ============ SEKCE 4 — KONTAKT ============ -->
+    <!-- ============ SEKCE 5 — KONTAKT ============ -->
     <section class="section" id="contact" aria-labelledby="contact-heading">
       <div class="container">
-        <p class="eyebrow reveal">03&nbsp;Kontakt</p>
-        <h2 class="section-heading reveal" id="contact-heading">Ozvěte se nám.</h2>
+        <p class="eyebrow reveal" data-i18n="contact.eyebrow">Kontakt</p>
+        <h2 class="section-heading reveal" id="contact-heading" data-i18n="contact.heading">Ozvěte se nám.</h2>
         <div class="contact-block reveal">
           <p class="contact-email">
-            <a href="mailto:hello@praguequant.cz">hello@praguequant.cz</a>
+            <a href="mailto:hello@praguequantclub.org">hello@praguequantclub.org</a>
           </p>
           <ul class="contact-socials">
             <li><a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a></li>
             <li><a href="https://linkedin.com/company/prague-quant-club" target="_blank" rel="noopener">LinkedIn</a></li>
             <li><a href="https://discord.gg/praguequant" target="_blank" rel="noopener">Discord</a></li>
           </ul>
-          <p class="contact-meta">
-            Otevřeno studentům všech pražských univerzit.<br>
-            Pravidelná setkání probíhají na Vysoké škole ekonomické v Praze
-            (VŠE), náměstí Winstona Churchilla 4, Praha 3.
-          </p>
+          <div class="contact-location">
+            <p class="contact-location-label" data-i18n="contact.location.label">Kde nás najdete</p>
+            <address>
+              <a href="https://www.google.com/maps/search/?api=1&query=Opletalova+26,+110+00+Praha+1" target="_blank" rel="noopener">
+                <span data-i18n="contact.location.line1">Institut ekonomických studií FSV UK</span><br>
+                Opletalova 26<br>
+                110 00 Praha 1
+              </a>
+            </address>
+          </div>
         </div>
       </div>
     </section>
@@ -176,11 +227,6 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <p class="footer-brand">Prague Quant Club</p>
-      <ul class="footer-nav" aria-label="Navigace v patičce">
-        <li><a href="#about">O nás</a></li>
-        <li><a href="#calendar">Kalendář</a></li>
-        <li><a href="#contact">Kontakt</a></li>
-      </ul>
       <ul class="footer-socials" aria-label="Sociální sítě">
         <li><a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a></li>
         <li><a href="https://linkedin.com/company/prague-quant-club" target="_blank" rel="noopener">LinkedIn</a></li>
@@ -188,7 +234,7 @@
       </ul>
       <p class="footer-legal">
         &copy; <span id="footer-year">2026</span> Prague Quant Club.
-        Klub je studentská iniciativa a jedná nezávisle na univerzitě.
+        <span data-i18n="footer.legal">Klub je studentská iniciativa a jedná nezávisle na univerzitě.</span>
       </p>
     </div>
   </footer>

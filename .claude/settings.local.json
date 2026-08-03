@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:code.claude.com)",
       "Bash(node --check:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:quant-finance-club.ch)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
