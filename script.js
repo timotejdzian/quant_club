@@ -93,6 +93,7 @@ var I18N_EN = {
 
   "calendar.eyebrow": "Calendar",
   "calendar.heading": "Upcoming events.",
+  "calendar.tba": "to be announced",
 
   "contact.eyebrow": "Contact",
   "contact.heading": "Get in touch.",

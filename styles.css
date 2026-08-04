@@ -551,6 +551,19 @@ a:focus-visible {
   transition: opacity 0.2s ease;
 }
 
+.partner-logo {
+  flex: 0 0 auto;
+  margin-right: 88px;
+  max-height: 60px;
+  width: auto;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.partner-logo:hover {
+  opacity: 1;
+}
+
 .partner-mark:hover img {
   opacity: 1;
 }
