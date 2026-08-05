@@ -568,6 +568,20 @@ a:focus-visible {
   opacity: 1;
 }
 
+/* TBA text for events marquee */
+.tba-text {
+  flex: 0 0 auto;
+  margin-right: 88px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
 .partner-note {
   margin-top: 32px;
   font-size: 15px;
@@ -866,6 +880,11 @@ a:focus-visible {
 
   .partner-mark {
     font-size: 17px;
+    margin-right: 56px;
+  }
+
+  .tba-text {
+    font-size: 18px;
     margin-right: 56px;
   }
 
