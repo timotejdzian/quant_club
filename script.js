@@ -64,32 +64,32 @@ var I18N_EN = {
   "stats.semesters": "Semesters running",
   "stats.partners": "Partner firms",
 
-  "card1.h": "Our goal",
+  "card1.h": "Goal",
   "card1.p":
-    "To bring together people who enjoy quantitative finance and give them " +
-    "an environment where they can push further in the field. We connect " +
-    "classroom theory with the skills trading firms and funds actually " +
-    "look for.",
+    "We build an environment where students interested in quantitative " +
+    "finance can develop further in the field. We focus on the skills " +
+    "trading firms and funds actually require, and use them to supplement " +
+    "university coursework.",
   "card2.h": "Events",
   "card2.p":
-    "Seminars on the areas quant finance is built on: statistics, linear " +
-    "algebra, probability, programming. On top of that, talks and meetups " +
-    "with people from quant firms, interview preparation and poker nights.",
+    "We run seminars in statistics, linear algebra, probability and " +
+    "programming, the fields quantitative finance is built on. Alongside " +
+    "those, talks and meetings with representatives of quant firms, " +
+    "interview preparation, and poker nights.",
   "card3.h": "Format",
   "card3.p":
-    "We meet roughly once every two weeks during the semester. Anyone who " +
-    "meets the attendance requirements and completes the assigned problems " +
-    "receives a certificate of completion at the end.",
-  "card4.h": "Who is behind it",
+    "During the semester we meet roughly once every two weeks. Members " +
+    "who meet the attendance requirement and submit the assigned problem " +
+    "sets receive a certificate of completion at the end.",
+  "card4.h": "Team",
   "card4.p":
     "The club was founded at Charles University and is run by students of " +
-    "mathematics, statistics and economics. Membership is not limited to a " +
-    "single faculty or school, anyone with a genuine interest in the field " +
-    "is welcome to join.",
+    "mathematics, statistics and economics. Membership is not tied to a " +
+    "single faculty or university, it is open to anyone with a real " +
+    "interest in the field.",
 
   "partners.label2": "// events with",
   "partners.tba": "to be announced",
-  "partners.note": 'Want to become a partner of the club? <a href="#contact">Get in touch.</a>',
 
   "calendar.eyebrow": "Calendar",
   "calendar.heading": "Upcoming events.",
