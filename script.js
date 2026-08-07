@@ -66,27 +66,29 @@ var I18N_EN = {
 
   "card1.h": "Goal",
   "card1.p":
-    "We build an environment where students interested in quantitative " +
-    "finance can develop further in the field. We focus on the skills " +
-    "trading firms and funds actually require, and use them to supplement " +
-    "university coursework.",
+    "We create an environment for educating students in the field of " +
+    "quantitative finance. Our goal is to prepare everyone with interest " +
+    "and drive for work in the industry. We supplement standard " +
+    "coursework with the skills that trading firms and funds truly " +
+    "require.",
   "card2.h": "Events",
   "card2.p":
-    "We run seminars in statistics, linear algebra, probability and " +
-    "programming, the fields quantitative finance is built on. Alongside " +
-    "those, talks and meetings with representatives of quant firms, " +
-    "interview preparation, and poker nights.",
+    "We organize seminars in statistics, linear algebra, probability and " +
+    "programming, the fields quantitative finance is built on. In " +
+    "addition, talks and meetings with representatives of quant firms, " +
+    "interview preparation, and friendly poker nights.",
   "card3.h": "Format",
   "card3.p":
     "During the semester we meet roughly once every two weeks. Members " +
-    "who meet the attendance requirement and submit the assigned problem " +
-    "sets receive a certificate of completion at the end.",
+    "who meet the attendance requirement and submit the required number " +
+    "of assigned problem sets receive a certificate of participation at " +
+    "the end.",
   "card4.h": "Team",
   "card4.p":
-    "The club was founded at Charles University and is run by students of " +
-    "mathematics, statistics and economics. Membership is not tied to a " +
-    "single faculty or university, it is open to anyone with a real " +
-    "interest in the field.",
+    "The club is run by students of mathematics, statistics and " +
+    "economics from Charles University. Membership is not tied to a " +
+    "single faculty or school, it is open to anyone with interest and " +
+    "enthusiasm for the field of quantitative finance.",
 
   "partners.label2": "// events with",
   "partners.tba": "to be announced",
