@@ -560,7 +560,18 @@ a:focus-visible {
   transition: opacity 0.2s ease;
 }
 
-.partner-logo:hover {
+.partner-logo:hover,
+.partner-logo:focus-visible {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.partner-logo img {
+  display: block;
+}
+
+.partner-logo:hover img,
+.partner-logo:focus-visible img {
   opacity: 1;
 }
 
