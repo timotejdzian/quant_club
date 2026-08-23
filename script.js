@@ -12,6 +12,18 @@
 "use strict";
 
 /* ==========================================================================
+   0. PŘIJÍMACÍ ŘÍZENÍ — EDIT HERE
+   Datum začátku náboru. Modál pod tlačítkem „Přidej se k nám" se podle
+   dnešního data sám přepne mezi „zatím nenabíráme" a „nábor běží".
+   ========================================================================== */
+const ADMISSIONS_OPEN = new Date("2026-10-18T00:00:00+02:00");
+
+/* Odkaz na přihlašovací formulář (Google Form). Nechte prázdné, dokud
+   formulář neexistuje — tlačítko se v modálu objeví až po doplnění URL. */
+const ADMISSIONS_FORM_URL = "";
+
+
+/* ==========================================================================
    1. EVENTS — EDIT HERE
    date must be "YYYY-MM-DD". Only future events (including today) are shown;
    past events are simply hidden.
@@ -61,8 +73,9 @@ var I18N_EN = {
     "Prague throughout the academic year.",
 
   "stats.members": "Members",
-  "stats.semesters": "Semesters running",
   "stats.partners": "Partner firms",
+
+  "modal.heading": "Admissions",
 
   "card1.h": "Goal",
   "card1.p":
@@ -275,4 +288,91 @@ function renderCalendar(lang) {
 (function footerYear() {
   var el = document.getElementById("footer-year");
   if (el) el.textContent = String(new Date().getFullYear());
+})();
+
+
+/* ==========================================================================
+   7. JOIN MODAL — „Přidej se k nám"
+   Opens a dialog; content depends on today's date vs ADMISSIONS_OPEN.
+   Closes on X, backdrop click and Escape. Focus moves into the dialog on
+   open and returns to the triggering button on close.
+   ========================================================================== */
+(function joinModal() {
+  var backdrop = document.getElementById("join-modal");
+  var closeBtn = document.getElementById("join-modal-close");
+  var textEl = document.getElementById("join-modal-text");
+  var actionsEl = document.getElementById("join-modal-actions");
+  var triggers = document.querySelectorAll("[data-join-cta]");
+  var panel = backdrop ? backdrop.querySelector(".modal") : null;
+  if (!backdrop || !panel || !closeBtn || !textEl || !actionsEl) return;
+
+  var lastFocused = null;
+
+  // "18.10.2026" — rendered from ADMISSIONS_OPEN, single source of truth.
+  function formatOpenDate() {
+    var d = ADMISSIONS_OPEN;
+    var dd = String(d.getDate()).padStart(2, "0");
+    var mm = String(d.getMonth() + 1).padStart(2, "0");
+    return dd + "." + mm + "." + d.getFullYear();
+  }
+
+  function renderContent() {
+    var isOpen = new Date() >= ADMISSIONS_OPEN;
+    var en = currentLang === "en";
+
+    if (isOpen) {
+      textEl.textContent = en
+        ? "Admissions are open."
+        : "Přijímací řízení je otevřené.";
+      if (ADMISSIONS_FORM_URL) {
+        var link = document.createElement("a");
+        link.className = "btn btn-filled";
+        link.href = ADMISSIONS_FORM_URL;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = en ? "Application form" : "Přihlašovací formulář";
+        actionsEl.innerHTML = "";
+        actionsEl.appendChild(link);
+      } else {
+        actionsEl.innerHTML = "";
+      }
+    } else {
+      textEl.textContent = en
+        ? "We're not recruiting members yet. Admissions open " + formatOpenDate() + "."
+        : "Zatím nenabíráme nové členy. Přijímací řízení začíná " + formatOpenDate() + ".";
+      actionsEl.innerHTML = "";
+    }
+
+    closeBtn.setAttribute("aria-label", en ? "Close" : "Zavřít");
+  }
+
+  function onKeydown(e) {
+    if (e.key === "Escape") closeModal();
+  }
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    renderContent();
+    backdrop.hidden = false;
+    panel.focus();
+    document.addEventListener("keydown", onKeydown);
+  }
+
+  function closeModal() {
+    backdrop.hidden = true;
+    document.removeEventListener("keydown", onKeydown);
+    if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+    lastFocused = null;
+  }
+
+  triggers.forEach(function (btn) {
+    btn.addEventListener("click", openModal);
+  });
+
+  closeBtn.addEventListener("click", closeModal);
+
+  // Click on the dark backdrop (not the panel) closes the dialog.
+  backdrop.addEventListener("click", function (e) {
+    if (e.target === backdrop) closeModal();
+  });
 })();

@@ -53,7 +53,7 @@
         <h1 class="hero-title">Prague<br>Quant Club</h1>
         <p class="hero-tagline" data-i18n="hero.tagline">Kde se matematika potkává s trhy.</p>
         <div class="hero-actions">
-          <a class="btn btn-filled" href="#contact" data-i18n="hero.ctaJoin">Přidej se k nám</a>
+          <button class="btn btn-filled" type="button" data-join-cta data-i18n="hero.ctaJoin">Přidej se k nám</button>
           <a class="btn btn-outline" href="#calendar" data-i18n="hero.ctaEvents">Nadcházející akce</a>
         </div>
       </div>
@@ -76,15 +76,11 @@
         <!-- Řádek se statistikami -->
         <div class="stats reveal" role="list">
           <div class="stat" role="listitem">
-            <span class="stat-number">##</span>
+            <span class="stat-number">7</span>
             <span class="stat-label" data-i18n="stats.members">Členů</span>
           </div>
           <div class="stat" role="listitem">
-            <span class="stat-number">##</span>
-            <span class="stat-label" data-i18n="stats.semesters">Semestrů fungování</span>
-          </div>
-          <div class="stat" role="listitem">
-            <span class="stat-number">##</span>
+            <span class="stat-number">2</span>
             <span class="stat-label" data-i18n="stats.partners">Partnerských firem</span>
           </div>
         </div>
@@ -250,6 +246,16 @@
       </p>
     </div>
   </footer>
+
+  <!-- ============ MODÁL — PŘIJÍMACÍ ŘÍZENÍ ============ -->
+  <div class="modal-backdrop" id="join-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="join-modal-heading" tabindex="-1">
+      <button class="modal-close" id="join-modal-close" type="button" aria-label="Zavřít">&times;</button>
+      <h2 class="modal-heading" id="join-modal-heading" data-i18n="modal.heading">Přijímací řízení</h2>
+      <p class="modal-text" id="join-modal-text"></p>
+      <div class="modal-actions" id="join-modal-actions"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
