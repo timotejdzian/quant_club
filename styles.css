@@ -706,6 +706,87 @@ a:focus-visible {
 
 
 /* ==========================================================================
+   10.5 TEAM — team grid section
+   ========================================================================== */
+.team-grid {
+  margin-top: 72px;
+}
+
+.team-group {
+  margin-bottom: 96px;
+}
+
+.team-group:last-child {
+  margin-bottom: 0;
+}
+
+.team-group-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.team-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 64px 32px;
+  justify-content: center;
+}
+
+.team-cards > .team-card {
+  flex: 0 0 calc((100% - 128px) / 5);
+}
+
+/* Single item rows (like Social media with 1 person) stay centered */
+@supports (width: fit-content) {
+  .team-cards:has(.team-card:only-child) {
+    justify-content: center;
+  }
+}
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 160px;
+}
+
+.team-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+.team-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text);
+  line-height: 1.3;
+  width: 100%;
+}
+
+
+/* ==========================================================================
    11. FOOTER — brand, socials and legal only (no section links)
    ========================================================================== */
 .site-footer {
@@ -796,6 +877,15 @@ a:focus-visible {
 
   .card-grid {
     gap: 48px;
+  }
+
+  .team-cards > .team-card {
+    flex: 0 0 calc((100% - 56px) / 3);
+  }
+
+  .team-avatar {
+    width: 120px;
+    height: 120px;
   }
 }
 
@@ -914,6 +1004,19 @@ a:focus-visible {
     margin-left: 0;
     text-align: left;
     flex: 0 0 100%;
+  }
+
+  .team-cards > .team-card {
+    flex: 0 0 calc((100% - 24px) / 2);
+  }
+
+  .team-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .team-name {
+    font-size: 15px;
   }
 }
 
