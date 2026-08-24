@@ -376,6 +376,58 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
+   5.5 STATISTICS COUNTER ANIMATION
+   ========================================================================== */
+(function statsCounter() {
+  var statNumbers = document.querySelectorAll(".stat-number");
+  if (!statNumbers.length) return;
+
+  function animateCounter(el, target, duration) {
+    var start = 0;
+    var startTime = null;
+
+    function step(currentTime) {
+      if (!startTime) startTime = currentTime;
+      var progress = Math.min((currentTime - startTime) / duration, 1);
+      var current = Math.floor(progress * target);
+      el.textContent = String(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = String(target);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    // Old browser: just show final numbers
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var targetValue = parseInt(el.textContent, 10);
+        if (!isNaN(targetValue)) {
+          el.textContent = "0";
+          // Faster duration: 100ms per unit (e.g., 6 = 600ms, 2 = 200ms)
+          var duration = targetValue * 100;
+          animateCounter(el, targetValue, duration);
+        }
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  statNumbers.forEach(function (el) { observer.observe(el); });
+})();
+
+
+/* ==========================================================================
    6. FOOTER YEAR
    ========================================================================== */
 (function footerYear() {
