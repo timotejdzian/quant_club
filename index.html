@@ -30,6 +30,7 @@
           <li><a href="#calendar" data-i18n="nav.calendar">Kalendář</a></li>
           <li><a href="#contact" data-i18n="nav.contact">Kontakt</a></li>
           <li><a href="#team" data-i18n="nav.team">Tým</a></li>
+          <li><a href="#prihlasky" data-i18n="nav.applications">Přihlášky</a></li>
         </ul>
 
         <!-- Přepínač jazyka — obsluhuje script.js -->
@@ -54,7 +55,7 @@
         <h1 class="hero-title">Prague<br>Quant Club</h1>
         <p class="hero-tagline" data-i18n="hero.tagline">Kde se matematika potkává s trhy.</p>
         <div class="hero-actions">
-          <button class="btn btn-filled" type="button" data-join-cta data-i18n="hero.ctaJoin">Přidej se k nám</button>
+          <a class="btn btn-filled" href="#prihlasky" data-i18n="hero.ctaJoin">Přidej se k nám</a>
           <a class="btn btn-outline" href="#calendar" data-i18n="hero.ctaEvents">Nadcházející akce</a>
         </div>
       </div>
@@ -244,6 +245,84 @@
         <h2 class="section-heading reveal" id="team-heading" data-i18n="team.heading">Tým</h2>
 
         <div id="team-grid" class="team-grid"></div>
+      </div>
+    </section>
+
+    <hr class="section-rule">
+
+    <!-- ============ SEKCE 7 — PŘIHLÁŠKY ============ -->
+    <section class="section" id="prihlasky" aria-labelledby="applications-heading">
+      <div class="container">
+        <p class="eyebrow reveal" data-i18n="applications.eyebrow">Přihlášky</p>
+        <h2 class="section-heading reveal" id="applications-heading" data-i18n="applications.heading">Přihlášky</h2>
+        <p class="section-lede reveal" data-i18n="applications.lede">Přijímáme přihlášky pro zimní semestr 2026. Uzávěrka je 11. října.</p>
+
+        <div class="applications-block reveal">
+          <!-- Email address with copy button -->
+          <div class="applications-email-copy">
+            <p class="applications-email-label" data-i18n="applications.emailLabel">Napiš nám na:</p>
+            <div class="applications-email-row">
+              <span class="applications-email-address">info@praguequantclub.org</span>
+              <button
+                class="applications-copy-button"
+                id="copy-email-button"
+                type="button"
+                aria-label="Kopírovat e-mailovou adresu"
+                data-i18n-aria="applications.copyAriaLabel">
+                <span data-i18n="applications.copyButton">Kopírovat</span>
+              </button>
+            </div>
+            <div class="applications-copy-status" role="status" aria-live="polite" id="copy-status"></div>
+          </div>
+
+          <!-- Checklist -->
+          <div class="applications-checklist">
+            <h3 class="applications-checklist-heading" data-i18n="applications.checklistHeading">Co poslat</h3>
+            <p class="applications-checklist-intro" data-i18n="applications.checklistIntro">Jeden e-mail, jedna příloha: životopis v PDF. V něm uveď:</p>
+            <ul class="applications-checklist-items">
+              <li data-i18n="applications.checklist1">Školu, obor a ročník</li>
+              <li data-i18n="applications.checklist2">Studijní průměr</li>
+              <li data-i18n="applications.checklist3">Zkušenosti: práce, stáže, projekty</li>
+              <li data-i18n="applications.checklist4">Výzkum a publikace, pokud nějaké máš</li>
+              <li data-i18n="applications.checklist5">Soutěže a olympiády</li>
+              <li data-i18n="applications.checklist6">Zájmy</li>
+            </ul>
+            <p class="applications-checklist-format" data-i18n="applications.format">Formát: doporučujeme šablonu <a href="https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs" target="_blank" rel="noopener" data-i18n="applications.formatLink">Jake's Resume</a>.</p>
+            <p class="applications-checklist-note" data-i18n="applications.note">Předmět e-mailu ve tvaru: Přihláška – Jméno Příjmení. Odpovíme do tří dnů.</p>
+          </div>
+
+          <!-- Toggle for process panel -->
+          <button
+            class="applications-toggle"
+            id="process-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="process-panel"
+            data-i18n="applications.toggle">
+            Jak probíhá přijímací řízení?
+          </button>
+
+          <!-- Process panel (collapsed by default) -->
+          <div class="applications-process-panel" id="process-panel" hidden>
+            <div class="process-step">
+              <h4 class="process-step-heading" data-i18n="applications.step1Heading">Krok 1 — Přihláška a životopis</h4>
+              <p data-i18n="applications.step1Text">Pošli nám životopis v PDF. Kromě studia nás zajímá i to, co děláš mimo něj: projekty, soutěže, výzkum, zájmy. Jedna strana stačí.</p>
+              <p class="process-step-meta" data-i18n="applications.step1Meta">do 11. října</p>
+            </div>
+
+            <div class="process-step">
+              <h4 class="process-step-heading" data-i18n="applications.step2Heading">Krok 2 — Online test</h4>
+              <p data-i18n="applications.step2Text">Písemný test v češtině. Prověřuje čtyři oblasti: algebru a základní matematickou analýzu, pravděpodobnost a statistiku, logické úlohy a strukturované uvažování. Nejde o znalosti nazpaměť, ale o to, jak přemýšlíš.</p>
+              <p class="process-step-meta" data-i18n="applications.step2Meta">druhý říjnový týden, 45 minut. Přesný harmonogram oznámíme přihlášeným.</p>
+            </div>
+
+            <div class="process-step">
+              <h4 class="process-step-heading" data-i18n="applications.step3Heading">Krok 3 — Pohovor</h4>
+              <p data-i18n="applications.step3Text">Krátký online rozhovor. Chceme tě poznat a projít s tebou jednu otevřenou úlohu, abychom viděli, jak strukturuješ postup.</p>
+              <p class="process-step-meta" data-i18n="applications.step3Meta">20 minut, online</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

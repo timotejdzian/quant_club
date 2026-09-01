@@ -1033,6 +1033,208 @@ a:focus-visible {
 
 
 /* ==========================================================================
+   13.5 APPLICATIONS — přihlášky section
+   ========================================================================== */
+.applications-block {
+  margin-top: 56px;
+  max-width: 720px;
+}
+
+.applications-email-copy {
+  margin-bottom: 48px;
+}
+
+.applications-email-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.applications-email-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.applications-email-address {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  user-select: all;
+}
+
+.applications-copy-button {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.applications-copy-button:hover,
+.applications-copy-button:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.applications-copy-status {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  min-height: 20px;
+}
+
+.applications-checklist {
+  margin-bottom: 40px;
+}
+
+.applications-checklist-heading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+.applications-checklist-intro {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+}
+
+.applications-checklist-items {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.applications-checklist-items li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+}
+
+.applications-checklist-items li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.applications-checklist-format {
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.applications-checklist-format a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.applications-checklist-format a:hover,
+.applications-checklist-format a:focus-visible {
+  text-decoration: underline;
+}
+
+.applications-checklist-note {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.applications-toggle {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.applications-toggle:hover,
+.applications-toggle:focus-visible {
+  color: var(--text);
+}
+
+.applications-process-panel {
+  margin-top: 32px;
+  border-top: 1px solid var(--rule);
+  padding-top: 32px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease;
+}
+
+.applications-process-panel[hidden] {
+  display: block;
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+}
+
+.applications-process-panel:not([hidden]) {
+  max-height: 1200px;
+  opacity: 1;
+  padding-top: 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .applications-process-panel {
+    transition: none;
+  }
+  .applications-process-panel:not([hidden]) {
+    max-height: none;
+  }
+}
+
+.process-step {
+  margin-bottom: 40px;
+}
+
+.process-step:last-child {
+  margin-bottom: 0;
+}
+
+.process-step-heading {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+
+.process-step p {
+  color: var(--text-muted);
+  font-size: 15.5px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.process-step-meta {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  font-style: normal;
+}
+
+
+/* ==========================================================================
    14. JOIN MODAL — „Přidej se k nám" dialog
    ========================================================================== */
 .modal-backdrop {

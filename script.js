@@ -80,6 +80,7 @@ var I18N_EN = {
   "nav.partners": "Partners",
   "nav.calendar": "Calendar",
   "nav.contact": "Contact",
+  "nav.applications": "Applications",
 
   "hero.tagline": "Where mathematics meets the markets.",
   "hero.ctaJoin": "Join us",
@@ -137,7 +138,36 @@ var I18N_EN = {
 
   "footer.legal": "The club is a student initiative and acts independently of the university.",
 
-  "team.heading": "Team"
+  "team.heading": "Team",
+
+  "applications.eyebrow": "Applications",
+  "applications.heading": "Applications",
+  "applications.lede": "Applications are open for the winter semester 2026. The deadline is 11 October. The entrance test is in Czech.",
+  "applications.emailLabel": "Write to us at:",
+  "applications.copyButton": "Copy",
+  "applications.copyConfirmation": "Copied",
+  "applications.copyAriaLabel": "Copy email address",
+  "applications.checklistHeading": "What to send",
+  "applications.checklistIntro": "One email, one attachment: your CV as a PDF. Include:",
+  "applications.checklist1": "University, programme and year",
+  "applications.checklist2": "Grade average",
+  "applications.checklist3": "Experience: jobs, internships, projects",
+  "applications.checklist4": "Research and publications, if you have any",
+  "applications.checklist5": "Competitions and olympiads",
+  "applications.checklist6": "Interests",
+  "applications.format": "Format: we recommend the <a href=\"https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs\" target=\"_blank\" rel=\"noopener\" data-i18n=\"applications.formatLink\">Jake's Resume</a> template.",
+  "applications.formatLink": "Jake's Resume",
+  "applications.note": "Subject line in the format: Přihláška – Your Name. We reply within three days.",
+  "applications.toggle": "How does the selection process work?",
+  "applications.step1Heading": "Step 1 — Application and CV",
+  "applications.step1Text": "Send us your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",
+  "applications.step1Meta": "by 11 October",
+  "applications.step2Heading": "Step 2 — Online test",
+  "applications.step2Text": "A written test in Czech covering four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
+  "applications.step2Meta": "second week of October, 45 minutes. The exact schedule will be sent to applicants.",
+  "applications.step3Heading": "Step 3 — Interview",
+  "applications.step3Text": "A short online conversation. We want to get to know you and work through one open-ended problem to see how you structure your approach.",
+  "applications.step3Meta": "20 minutes, online"
 };
 
 var currentLang = "cs";
@@ -161,6 +191,20 @@ var currentLang = "cs";
         el.innerHTML = I18N_EN[key];
       } else {
         el.innerHTML = el.getAttribute("data-cs-html");
+      }
+    });
+
+    // Handle aria-label translations
+    var ariaNodes = document.querySelectorAll("[data-i18n-aria]");
+    ariaNodes.forEach(function (el) {
+      var key = el.getAttribute("data-i18n-aria");
+      if (lang === "en" && I18N_EN[key]) {
+        el.setAttribute("aria-label", I18N_EN[key]);
+      } else {
+        // Reset to Czech default (already in HTML)
+        if (key === "applications.copyAriaLabel") {
+          el.setAttribute("aria-label", "Kopírovat e-mailovou adresu");
+        }
       }
     });
 
@@ -520,4 +564,109 @@ function renderTeam(lang) {
   backdrop.addEventListener("click", function (e) {
     if (e.target === backdrop) closeModal();
   });
+})();
+
+
+/* ==========================================================================
+   8. APPLICATIONS — CLIPBOARD COPY
+   Copies the email address to the clipboard using navigator.clipboard.writeText.
+   Shows confirmation for 2 seconds, then reverts. Hides button if API unavailable.
+   ========================================================================== */
+(function clipboardCopy() {
+  var btn = document.getElementById("copy-email-button");
+  var status = document.getElementById("copy-status");
+  if (!btn || !status) return;
+
+  var emailAddress = "info@praguequantclub.org";
+  var confirmationTimeout = null;
+
+  // Hide button if clipboard API is unavailable
+  if (!navigator.clipboard || !navigator.clipboard.writeText) {
+    btn.style.display = "none";
+    return;
+  }
+
+  btn.addEventListener("click", function () {
+    navigator.clipboard.writeText(emailAddress).then(function () {
+      // Get the confirmation text based on current language
+      var confirmText = currentLang === "en"
+        ? I18N_EN["applications.copyConfirmation"]
+        : "Zkopírováno";
+
+      // Update button text
+      var span = btn.querySelector("span");
+      if (span) span.textContent = confirmText;
+
+      // Update status for screen readers
+      status.textContent = confirmText;
+
+      // Clear any existing timeout
+      if (confirmationTimeout) clearTimeout(confirmationTimeout);
+
+      // Revert after 2 seconds
+      confirmationTimeout = setTimeout(function () {
+        var copyText = currentLang === "en"
+          ? I18N_EN["applications.copyButton"]
+          : "Kopírovat";
+        if (span) span.textContent = copyText;
+        status.textContent = "";
+      }, 2000);
+    }).catch(function (err) {
+      // Silently fail if clipboard write fails
+      console.error("Failed to copy email:", err);
+    });
+  });
+})();
+
+
+/* ==========================================================================
+   9. APPLICATIONS — PROCESS PANEL TOGGLE
+   Toggles the process panel visibility. Responds to Enter and Space.
+   Respects prefers-reduced-motion on the expand animation.
+   Opens automatically if location.hash is "#prijimaci-rizeni" on load.
+   ========================================================================== */
+(function processToggle() {
+  var toggle = document.getElementById("process-toggle");
+  var panel = document.getElementById("process-panel");
+  if (!toggle || !panel) return;
+
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+  }
+
+  function closePanel() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  function togglePanel() {
+    if (panel.hidden) {
+      openPanel();
+    } else {
+      closePanel();
+    }
+  }
+
+  toggle.addEventListener("click", togglePanel);
+
+  // Handle keyboard events (Enter and Space)
+  toggle.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      togglePanel();
+    }
+  });
+
+  // Open panel if hash is #prijimaci-rizeni on load
+  if (window.location.hash === "#prijimaci-rizeni") {
+    openPanel();
+    // Scroll to the section
+    var section = document.getElementById("prihlasky");
+    if (section) {
+      setTimeout(function () {
+        section.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }
 })();
