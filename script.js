@@ -162,9 +162,9 @@ var I18N_EN = {
   "applications.step1Heading": "Step 1 — Application and CV",
   "applications.step1Text": "Send us your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",
   "applications.step1Meta": "by 11 October",
-  "applications.step2Heading": "Step 2 — Online test",
-  "applications.step2Text": "A written test in Czech covering four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
-  "applications.step2Meta": "second week of October, 45 minutes. The exact schedule will be sent to applicants.",
+  "applications.step2Heading": "Step 2 — Test",
+  "applications.step2Text": "A written test in Czech at a location that will be specified. Covers four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
+  "applications.step2Meta": "second week of October, 45 minutes. The exact schedule and location will be sent to applicants.",
   "applications.step3Heading": "Step 3 — Interview",
   "applications.step3Text": "A short online conversation. We want to get to know you and work through one open-ended problem to see how you structure your approach.",
   "applications.step3Meta": "20 minutes, online"
