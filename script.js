@@ -37,25 +37,6 @@ var EVENTS = [
   //
 ];
 
-/* ==========================================================================
-   TEAM — EDIT HERE
-   Each team member must have: name, group, avatar ("m" or "f").
-   Optional: photo (path to headshot image; leave empty string for placeholder).
-   When photo is empty, the avatar-{m,f}.svg placeholder will be used.
-   ========================================================================== */
-var TEAM = [
-  // SEM PŘIDÁVEJTE ČLENY TÝMU — jeden řádek na osobu. Příklad:
-  //
-  // { name: "Jan Novák", group: "Zakladatelé", groupEn: "Founders", avatar: "m", photo: "" },
-  //
-  { name: "Klára Machalíčková", group: "Zakladatelé", groupEn: "Founders", avatar: "f", photo: "" },
-  { name: "Josef Hlahůlek", group: "Zakladatelé", groupEn: "Founders", avatar: "m", photo: "" },
-  { name: "Timotej Dzian", group: "Zakladatelé", groupEn: "Founders", avatar: "m", photo: "" },
-  { name: "Ondřej Vild", group: "Zakladatelé", groupEn: "Founders", avatar: "m", photo: "" },
-  { name: "Hynek Holub", group: "Zakladatelé", groupEn: "Founders", avatar: "m", photo: "" },
-  { name: "Juraj Kvasnička", group: "Sociální sítě", groupEn: "Social media", avatar: "m", photo: "" }
-];
-
 /* Zobrazí se, pokud v seznamu nejsou žádné budoucí akce */
 var EMPTY_UPCOMING_MESSAGE = {
   cs: 'Momentálně nejsou naplánované žádné akce. Sledujte náš ' +
@@ -76,7 +57,6 @@ var I18N_EN = {
   "skip": "Skip to content",
 
   "nav.about": "About",
-  "nav.team": "Team",
   "nav.partners": "Partners",
   "nav.calendar": "Calendar",
   "nav.contact": "Contact",
@@ -137,8 +117,6 @@ var I18N_EN = {
   "contact.location.line1": "Institute of Economic Studies FSV UK",
 
   "footer.legal": "The club is a student initiative and acts independently of the university.",
-
-  "team.heading": "Team",
 
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
@@ -215,7 +193,6 @@ var currentLang = "cs";
     }
 
     renderCalendar(lang);
-    renderTeam(lang);
 
     try { localStorage.setItem("pqc-lang", lang); } catch (e) { /* private mode etc. */ }
   }
@@ -300,77 +277,7 @@ function renderCalendar(lang) {
 
 
 /* ==========================================================================
-   4. TEAM RENDERING — grouped by role
-   ========================================================================== */
-function renderTeam(lang) {
-  var teamEl = document.getElementById("team-grid");
-  if (!teamEl) return;
-
-  function escapeHtml(s) {
-    var div = document.createElement("div");
-    div.textContent = s;
-    return div.innerHTML;
-  }
-
-  function pickGroup(member) {
-    if (lang === "en" && member.groupEn) return member.groupEn;
-    return member.group || "";
-  }
-
-  // Group members by their group field
-  var groups = {};
-  TEAM.forEach(function (member) {
-    var g = pickGroup(member);
-    if (!groups[g]) groups[g] = [];
-    groups[g].push(member);
-  });
-
-  // Sort groups to ensure "Zakladatelé"/"Founders" comes first
-  var sortedGroups = Object.keys(groups).sort(function (a, b) {
-    var aIsFounders = a === "Zakladatelé" || a === "Founders";
-    var bIsFounders = b === "Zakladatelé" || b === "Founders";
-    if (aIsFounders && !bIsFounders) return -1;
-    if (!aIsFounders && bIsFounders) return 1;
-    return 0;
-  });
-
-  var html = "";
-  sortedGroups.forEach(function (groupName) {
-    var members = groups[groupName];
-    html += '<div class="team-group reveal">';
-    html += '<h2 class="team-group-label">' + escapeHtml(groupName) + "</h2>";
-    html += '<div class="team-cards">';
-    members.forEach(function (m) {
-      var avatarSrc = m.photo ? escapeHtml(m.photo) : "assets/avatar-" + m.avatar + ".svg";
-      html += '<div class="team-card">';
-      html += '<div class="team-avatar">';
-      html += '<img src="' + avatarSrc + '" alt="" aria-hidden="true">';
-      html += "</div>";
-      html += '<p class="team-name">' + escapeHtml(m.name) + "</p>";
-      html += "</div>";
-    });
-    html += "</div>";
-    html += "</div>";
-  });
-
-  teamEl.innerHTML = html;
-
-  // Make newly rendered elements visible immediately
-  teamEl.querySelectorAll('.reveal').forEach(function(el) {
-    el.classList.add('visible');
-  });
-}
-
-// Render team on page load if the element exists
-(function() {
-  if (document.getElementById("team-grid")) {
-    renderTeam(currentLang);
-  }
-})();
-
-
-/* ==========================================================================
-   5. MOBILE HAMBURGER MENU
+   4. MOBILE HAMBURGER MENU
    ========================================================================== */
 (function mobileNav() {
   var header = document.getElementById("site-header");
@@ -396,7 +303,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   5. REVEAL-ON-SCROLL — subtle fade-and-rise via IntersectionObserver
+   4.5 REVEAL-ON-SCROLL — subtle fade-and-rise via IntersectionObserver
    ========================================================================== */
 (function revealOnScroll() {
   var items = document.querySelectorAll(".reveal");
@@ -420,7 +327,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   5.5 STATISTICS COUNTER ANIMATION
+   5. STATISTICS COUNTER ANIMATION
    ========================================================================== */
 (function statsCounter() {
   var statNumbers = document.querySelectorAll(".stat-number");
@@ -472,7 +379,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   6. FOOTER YEAR
+   5.5 FOOTER YEAR
    ========================================================================== */
 (function footerYear() {
   var el = document.getElementById("footer-year");
@@ -481,7 +388,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   7. JOIN MODAL — „Přidej se k nám"
+   6. JOIN MODAL — „Přidej se k nám"
    Opens a dialog; content depends on today's date vs ADMISSIONS_OPEN.
    Closes on X, backdrop click and Escape. Focus moves into the dialog on
    open and returns to the triggering button on close.
@@ -568,7 +475,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   8. APPLICATIONS — CLIPBOARD COPY
+   7. APPLICATIONS — CLIPBOARD COPY
    Copies the email address to the clipboard using navigator.clipboard.writeText.
    Shows confirmation for 2 seconds, then reverts. Hides button if API unavailable.
    ========================================================================== */
@@ -620,7 +527,7 @@ function renderTeam(lang) {
 
 
 /* ==========================================================================
-   9. APPLICATIONS — PROCESS PANEL TOGGLE
+   8. APPLICATIONS — PROCESS PANEL TOGGLE
    Toggles the process panel visibility. Responds to Enter and Space.
    Respects prefers-reduced-motion on the expand animation.
    Opens automatically if location.hash is "#prijimaci-rizeni" on load.
