@@ -246,27 +246,22 @@
         <p class="section-lede reveal" data-i18n="applications.lede">Přijímáme přihlášky pro zimní semestr 2026. Uzávěrka je 11. října.</p>
 
         <div class="applications-block reveal">
-          <!-- Email address with copy button -->
-          <div class="applications-email-copy">
-            <p class="applications-email-label" data-i18n="applications.emailLabel">Napiš nám na:</p>
-            <div class="applications-email-row">
-              <span class="applications-email-address">info@praguequantclub.org</span>
-              <button
-                class="applications-copy-button"
-                id="copy-email-button"
-                type="button"
-                aria-label="Kopírovat e-mailovou adresu"
-                data-i18n-aria="applications.copyAriaLabel">
-                <span data-i18n="applications.copyButton">Kopírovat</span>
-              </button>
-            </div>
-            <div class="applications-copy-status" role="status" aria-live="polite" id="copy-status"></div>
+          <!-- Google Form CTA -->
+          <div class="applications-form-cta">
+            <p class="applications-form-label" data-i18n="applications.formLabel">Přihlášku odešli přes formulář:</p>
+            <a
+              class="btn btn-filled applications-form-button"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdpdQqx9jfw8icmpe3cQqhm-Kj9joudDmEAJe6GeZgB-0DSgg/viewform?usp=publish-editor"
+              target="_blank"
+              rel="noopener"
+              data-i18n="applications.formButton">Vyplnit přihlášku</a>
+            <p class="applications-form-hint" data-i18n="applications.formHint">Formulář se otevře v novém okně. Vyplnění zabere pár minut.</p>
           </div>
 
           <!-- Checklist -->
           <div class="applications-checklist">
-            <h3 class="applications-checklist-heading" data-i18n="applications.checklistHeading">Co poslat</h3>
-            <p class="applications-checklist-intro" data-i18n="applications.checklistIntro">Jeden e-mail, jedna příloha: životopis v PDF. V něm uveď:</p>
+            <h3 class="applications-checklist-heading" data-i18n="applications.checklistHeading">Co připravit</h3>
+            <p class="applications-checklist-intro" data-i18n="applications.checklistIntro">Do formuláře nahraješ životopis v PDF. V něm uveď:</p>
             <ul class="applications-checklist-items">
               <li data-i18n="applications.checklist1">Školu, obor a ročník</li>
               <li data-i18n="applications.checklist2">Studijní průměr</li>
@@ -276,7 +271,7 @@
               <li data-i18n="applications.checklist6">Zájmy</li>
             </ul>
             <p class="applications-checklist-format" data-i18n="applications.format">Formát: doporučujeme šablonu <a href="https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs" target="_blank" rel="noopener" data-i18n="applications.formatLink">Jake's Resume</a>.</p>
-            <p class="applications-checklist-note" data-i18n="applications.note">Předmět e-mailu ve tvaru: Přihláška – Jméno Příjmení. Odpovíme do tří dnů.</p>
+            <p class="applications-checklist-note" data-i18n="applications.note">Po odeslání formuláře se ti ozveme do tří dnů.</p>
           </div>
 
           <!-- Toggle for process panel -->
@@ -294,7 +289,7 @@
           <div class="applications-process-panel" id="process-panel" hidden>
             <div class="process-step">
               <h4 class="process-step-heading" data-i18n="applications.step1Heading">Krok 1 — Přihláška a životopis</h4>
-              <p data-i18n="applications.step1Text">Pošli nám životopis v PDF. Kromě studia nás zajímá i to, co děláš mimo něj: projekty, soutěže, výzkum, zájmy. Jedna strana stačí.</p>
+              <p data-i18n="applications.step1Text">Vyplň přihlašovací formulář a nahraj životopis v PDF. Kromě studia nás zajímá i to, co děláš mimo něj: projekty, soutěže, výzkum, zájmy. Jedna strana stačí.</p>
               <p class="process-step-meta" data-i18n="applications.step1Meta">do 11. října</p>
             </div>
 

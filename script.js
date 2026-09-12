@@ -121,12 +121,11 @@ var I18N_EN = {
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
   "applications.lede": "Applications are open for the winter semester 2026. The deadline is 11 October. The entrance test is in Czech.",
-  "applications.emailLabel": "Write to us at:",
-  "applications.copyButton": "Copy",
-  "applications.copyConfirmation": "Copied",
-  "applications.copyAriaLabel": "Copy email address",
-  "applications.checklistHeading": "What to send",
-  "applications.checklistIntro": "One email, one attachment: your CV as a PDF. Include:",
+  "applications.formLabel": "Submit your application via the form:",
+  "applications.formButton": "Fill in the application",
+  "applications.formHint": "The form opens in a new window. It takes a few minutes to complete.",
+  "applications.checklistHeading": "What to prepare",
+  "applications.checklistIntro": "You will upload your CV as a PDF in the form. Include:",
   "applications.checklist1": "University, programme and year",
   "applications.checklist2": "Grade average",
   "applications.checklist3": "Experience: jobs, internships, projects",
@@ -135,10 +134,10 @@ var I18N_EN = {
   "applications.checklist6": "Interests",
   "applications.format": "Format: we recommend the <a href=\"https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs\" target=\"_blank\" rel=\"noopener\" data-i18n=\"applications.formatLink\">Jake's Resume</a> template.",
   "applications.formatLink": "Jake's Resume",
-  "applications.note": "Subject line in the format: Přihláška – Your Name. We reply within three days.",
+  "applications.note": "After you submit the form, we will get back to you within three days.",
   "applications.toggle": "How does the selection process work?",
   "applications.step1Heading": "Step 1 — Application and CV",
-  "applications.step1Text": "Send us your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",
+  "applications.step1Text": "Fill in the application form and upload your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",
   "applications.step1Meta": "by 11 October",
   "applications.step2Heading": "Step 2 — Test",
   "applications.step2Text": "A written test in Czech at a location that will be specified. Covers four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
@@ -178,11 +177,8 @@ var currentLang = "cs";
       var key = el.getAttribute("data-i18n-aria");
       if (lang === "en" && I18N_EN[key]) {
         el.setAttribute("aria-label", I18N_EN[key]);
-      } else {
-        // Reset to Czech default (already in HTML)
-        if (key === "applications.copyAriaLabel") {
-          el.setAttribute("aria-label", "Kopírovat e-mailovou adresu");
-        }
+      } else if (el.hasAttribute("data-cs-aria")) {
+        el.setAttribute("aria-label", el.getAttribute("data-cs-aria"));
       }
     });
 
@@ -475,59 +471,7 @@ function renderCalendar(lang) {
 
 
 /* ==========================================================================
-   7. APPLICATIONS — CLIPBOARD COPY
-   Copies the email address to the clipboard using navigator.clipboard.writeText.
-   Shows confirmation for 2 seconds, then reverts. Hides button if API unavailable.
-   ========================================================================== */
-(function clipboardCopy() {
-  var btn = document.getElementById("copy-email-button");
-  var status = document.getElementById("copy-status");
-  if (!btn || !status) return;
-
-  var emailAddress = "info@praguequantclub.org";
-  var confirmationTimeout = null;
-
-  // Hide button if clipboard API is unavailable
-  if (!navigator.clipboard || !navigator.clipboard.writeText) {
-    btn.style.display = "none";
-    return;
-  }
-
-  btn.addEventListener("click", function () {
-    navigator.clipboard.writeText(emailAddress).then(function () {
-      // Get the confirmation text based on current language
-      var confirmText = currentLang === "en"
-        ? I18N_EN["applications.copyConfirmation"]
-        : "Zkopírováno";
-
-      // Update button text
-      var span = btn.querySelector("span");
-      if (span) span.textContent = confirmText;
-
-      // Update status for screen readers
-      status.textContent = confirmText;
-
-      // Clear any existing timeout
-      if (confirmationTimeout) clearTimeout(confirmationTimeout);
-
-      // Revert after 2 seconds
-      confirmationTimeout = setTimeout(function () {
-        var copyText = currentLang === "en"
-          ? I18N_EN["applications.copyButton"]
-          : "Kopírovat";
-        if (span) span.textContent = copyText;
-        status.textContent = "";
-      }, 2000);
-    }).catch(function (err) {
-      // Silently fail if clipboard write fails
-      console.error("Failed to copy email:", err);
-    });
-  });
-})();
-
-
-/* ==========================================================================
-   8. APPLICATIONS — PROCESS PANEL TOGGLE
+   7. APPLICATIONS — PROCESS PANEL TOGGLE
    Toggles the process panel visibility. Responds to Enter and Space.
    Respects prefers-reduced-motion on the expand animation.
    Opens automatically if location.hash is "#prijimaci-rizeni" on load.
