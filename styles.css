@@ -942,13 +942,6 @@ a:focus-visible {
   text-decoration: none;
 }
 
-.applications-form-hint {
-  margin-top: 12px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
 .applications-checklist {
   margin-bottom: 40px;
 }
@@ -987,14 +980,23 @@ a:focus-visible {
 }
 
 .applications-checklist-format {
+  margin-top: 24px;
   margin-bottom: 16px;
-  font-size: 15px;
-  color: var(--text-muted);
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.applications-checklist-format strong {
+  font-weight: 600;
+  color: var(--text);
 }
 
 .applications-checklist-format a {
   color: var(--accent);
-  text-decoration: none;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .applications-checklist-format a:hover,
