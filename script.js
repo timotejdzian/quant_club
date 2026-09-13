@@ -134,7 +134,6 @@ var I18N_EN = {
   "applications.checklist6": "Interests",
   "applications.format": "Format: we recommend the <a href=\"https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs\" target=\"_blank\" rel=\"noopener\" data-i18n=\"applications.formatLink\">Jake's Resume</a> template.",
   "applications.formatLink": "Jake's Resume",
-  "applications.note": "After you submit the form, we will get back to you within three days.",
   "applications.toggle": "How does the selection process work?",
   "applications.step1Heading": "Step 1 — Application and CV",
   "applications.step1Text": "Fill in the application form and upload your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",

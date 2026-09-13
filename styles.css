@@ -1002,12 +1002,6 @@ a:focus-visible {
   text-decoration: underline;
 }
 
-.applications-checklist-note {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
 .applications-toggle {
   font-family: var(--font-mono);
   font-size: 14px;
