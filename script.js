@@ -39,12 +39,10 @@ var EVENTS = [
 
 /* Zobrazí se, pokud v seznamu nejsou žádné budoucí akce */
 var EMPTY_UPCOMING_MESSAGE = {
-  cs: 'Momentálně nejsou naplánované žádné akce. Sledujte náš ' +
-      '<a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a>' +
-      ', kde vše oznamujeme.',
-  en: 'No events are scheduled right now. Follow our ' +
-      '<a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a>' +
-      ' where we announce everything.'
+  cs: 'Nejbližší termíny oznamujeme na ' +
+      '<a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagramu</a>.',
+  en: 'We announce upcoming dates on ' +
+      '<a href="https://instagram.com/praguequantclub" target="_blank" rel="noopener">Instagram</a>.'
 };
 
 
