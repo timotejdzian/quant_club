@@ -118,7 +118,7 @@ var I18N_EN = {
 
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
-  "applications.lede": "Applications are open for the winter semester 2026. The deadline is 11 October. The entrance test is in Czech.",
+  "applications.lede": "Applications are open on a rolling basis throughout the semester. The entrance test is in Czech.",
   "applications.formLabel": "Submit your application via the form:",
   "applications.formButton": "Fill in the application",
   "applications.checklistHeading": "What to prepare",
@@ -134,13 +134,10 @@ var I18N_EN = {
   "applications.toggle": "How does the selection process work?",
   "applications.step1Heading": "Step 1 — Application and CV",
   "applications.step1Text": "Fill in the application form and upload your CV as a PDF. Beyond your studies we care about what you do outside them: projects, competitions, research, interests. One page is enough.",
-  "applications.step1Meta": "by 11 October",
   "applications.step2Heading": "Step 2 — Test",
-  "applications.step2Text": "A written test in Czech at a location that will be specified. Covers four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
-  "applications.step2Meta": "14 October (alternative date 16 October), 90 minutes. The exact schedule and location will be sent to applicants.",
+  "applications.step2Text": "A written test in Czech. We will let you know the date and location after you apply. Covers four areas: algebra and basic calculus, probability and statistics, brain teasers, and structured thinking. It is not about memorised knowledge, it is about how you reason.",
   "applications.step3Heading": "Step 3 — Interview",
-  "applications.step3Text": "A short in-person conversation. We want to get to know you and work through one open-ended problem to see how you structure your approach.",
-  "applications.step3Meta": "30 minutes, in person"
+  "applications.step3Text": "A short in-person conversation. We want to get to know you and work through one open-ended problem to see how you structure your approach."
 };
 
 var currentLang = "cs";
