@@ -242,9 +242,12 @@
       <div class="container">
         <p class="eyebrow reveal" data-i18n="applications.eyebrow">Přihlášky</p>
         <h2 class="section-heading reveal" id="applications-heading" data-i18n="applications.heading">Přihlášky</h2>
-        <p class="section-lede reveal" data-i18n="applications.lede">Přihlášky přijímáme průběžně během celého semestru.</p>
+        <p class="section-lede reveal" data-i18n="applications.lede">Přihlášky jsou momentálně uzavřené.</p>
 
-        <div class="applications-block reveal">
+        <!-- Rolling-admissions content, hidden while applications are closed.
+             To reopen: remove `hidden` and set the lede back to "Přihlášky přijímáme průběžně během celého semestru." -->
+
+        <div class="applications-block reveal" hidden>
           <!-- Google Form CTA -->
           <div class="applications-form-cta">
             <p class="applications-form-label" data-i18n="applications.formLabel">Přihlášku odešli přes formulář:</p>

@@ -118,7 +118,7 @@ var I18N_EN = {
 
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
-  "applications.lede": "Applications are open on a rolling basis throughout the semester. The entrance test is in Czech.",
+  "applications.lede": "Applications are currently closed.",
   "applications.formLabel": "Submit your application via the form:",
   "applications.formButton": "Fill in the application",
   "applications.checklistHeading": "What to prepare",
