@@ -514,3 +514,149 @@ function renderCalendar(lang) {
     }
   }
 })();
+
+/* ==========================================================================
+   Hero grid — dots of light travelling along the grid lines.
+   Each dot runs along a line, sometimes turns at an intersection, leaves a
+   short trail and lights up the grid lines around it. Canvas sits on top of
+   the static CSS grid; reduced-motion users just get the static grid.
+   ========================================================================== */
+(function () {
+  var hero = document.getElementById("hero");
+  var wrap = hero && hero.querySelector(".hero-grid");
+  if (!wrap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var CELL = 56;          // must match background-size in .hero-grid
+  var COUNT = 7;          // dots on screen
+  var SPEED = 110;        // px per second
+  var GLOW = 120;         // radius of the lit area around a dot
+  var TRAIL = 22;         // trail length in samples
+
+  var canvas = document.createElement("canvas");
+  var ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  wrap.appendChild(canvas);
+
+  var w = 0, h = 0, dpr = 1, dots = [], last = 0, raf = 0, visible = true;
+  var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+  function rand(n) { return Math.floor(Math.random() * n); }
+
+  function spawn(d) {
+    d = d || {};
+    d.x = rand(Math.floor(w / CELL) + 1) * CELL;
+    d.y = rand(Math.floor(h / CELL) + 1) * CELL;
+    var dir = DIRS[rand(4)];
+    d.dx = dir[0]; d.dy = dir[1];
+    d.life = 0;
+    d.maxLife = 5 + Math.random() * 6;   // seconds
+    d.speed = SPEED * (0.7 + Math.random() * 0.6);
+    d.trail = [];
+    d.toNext = CELL;                     // px left to the next intersection
+    return d;
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = wrap.clientWidth; h = wrap.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!dots.length) for (var i = 0; i < COUNT; i++) dots.push(spawn());
+  }
+
+  function step(d, dt) {
+    var move = d.speed * dt;
+    while (move > 0) {
+      var m = Math.min(move, d.toNext);
+      d.x += d.dx * m; d.y += d.dy * m;
+      d.toNext -= m; move -= m;
+      if (d.toNext <= 0) {
+        // At an intersection: snap, maybe turn 90°.
+        d.x = Math.round(d.x / CELL) * CELL; d.y = Math.round(d.y / CELL) * CELL;
+        if (Math.random() < 0.3) {
+          var s = Math.random() < 0.5 ? 1 : -1, t = d.dx;
+          d.dx = -d.dy * s; d.dy = t * s;
+        }
+        d.toNext = CELL;
+      }
+    }
+    d.trail.push([d.x, d.y]);
+    if (d.trail.length > TRAIL) d.trail.shift();
+    d.life += dt;
+    var off = d.x < -CELL || d.y < -CELL || d.x > w + CELL || d.y > h + CELL;
+    if (d.life > d.maxLife || off) spawn(d);
+  }
+
+  // Fade in at birth, fade out before respawn.
+  function alpha(d) {
+    return Math.min(1, d.life / 0.8, (d.maxLife - d.life) / 0.8);
+  }
+
+  // Grid lines inside the dot's glow radius, lit with a radial gradient.
+  function litLines(d, a) {
+    var x0 = Math.floor((d.x - GLOW) / CELL) * CELL, x1 = d.x + GLOW;
+    var y0 = Math.floor((d.y - GLOW) / CELL) * CELL, y1 = d.y + GLOW;
+    var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, GLOW);
+    g.addColorStop(0, "rgba(140, 140, 255, " + 0.45 * a + ")");
+    g.addColorStop(1, "rgba(91, 91, 240, 0)");
+    ctx.strokeStyle = g;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var x = x0; x <= x1; x += CELL) { ctx.moveTo(x + 0.5, y0); ctx.lineTo(x + 0.5, y1); }
+    for (var y = y0; y <= y1; y += CELL) { ctx.moveTo(x0, y + 0.5); ctx.lineTo(x1, y + 0.5); }
+    ctx.stroke();
+
+    // Soft wash on the area itself.
+    var f = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, GLOW * 0.8);
+    f.addColorStop(0, "rgba(91, 91, 240, " + 0.08 * a + ")");
+    f.addColorStop(1, "rgba(91, 91, 240, 0)");
+    ctx.fillStyle = f;
+    ctx.fillRect(d.x - GLOW, d.y - GLOW, GLOW * 2, GLOW * 2);
+  }
+
+  function trail(d, a) {
+    var t = d.trail;
+    ctx.lineCap = "round";
+    for (var i = 1; i < t.length; i++) {
+      var k = i / t.length;
+      ctx.strokeStyle = "rgba(170, 170, 255, " + 0.7 * k * a + ")";
+      ctx.lineWidth = 1 + k;
+      ctx.beginPath();
+      ctx.moveTo(t[i - 1][0] + 0.5, t[i - 1][1] + 0.5);
+      ctx.lineTo(t[i][0] + 0.5, t[i][1] + 0.5);
+      ctx.stroke();
+    }
+    // Head: bright core + small halo.
+    var hgl = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, 10);
+    hgl.addColorStop(0, "rgba(255, 255, 255, " + 0.95 * a + ")");
+    hgl.addColorStop(0.3, "rgba(160, 160, 255, " + 0.6 * a + ")");
+    hgl.addColorStop(1, "rgba(91, 91, 240, 0)");
+    ctx.fillStyle = hgl;
+    ctx.fillRect(d.x - 10, d.y - 10, 20, 20);
+  }
+
+  function frame(now) {
+    var dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now;
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = "lighter";   // overlapping glows add up
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i];
+      step(d, dt);
+      var a = alpha(d);
+      litLines(d, a);
+      trail(d, a);
+    }
+    ctx.globalCompositeOperation = "source-over";
+    raf = visible ? requestAnimationFrame(frame) : 0;
+  }
+
+  // Stop animating while the hero is scrolled out of view.
+  new IntersectionObserver(function (entries) {
+    visible = entries[0].isIntersecting;
+    if (visible && !raf) { last = 0; raf = requestAnimationFrame(frame); }
+  }).observe(hero);
+
+  window.addEventListener("resize", resize);
+  resize();
+})();
