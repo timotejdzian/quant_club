@@ -516,6 +516,26 @@ function renderCalendar(lang) {
 })();
 
 /* ==========================================================================
+   Christmas mode — on automatically from 1 Dec to 6 Jan, or with ?xmas in
+   the URL to preview. Adds a neon LED string under the nav; the hero lights
+   (below) switch to Christmas colours and add pixel snow.
+   ========================================================================== */
+(function () {
+  var now = new Date(), m = now.getMonth(), d = now.getDate();
+  var on = /[?&]xmas\b/.test(location.search) || m === 11 || (m === 0 && d <= 6);
+  var header = document.getElementById("site-header");
+  if (!on || !header) return;
+  document.documentElement.classList.add("xmas");
+
+  var string = document.createElement("div");
+  string.className = "xmas-lights";
+  string.setAttribute("aria-hidden", "true");
+  var n = Math.ceil(Math.max(window.innerWidth, screen.width) / 34);
+  for (var i = 0; i < n; i++) string.appendChild(document.createElement("span"));
+  header.appendChild(string);
+})();
+
+/* ==========================================================================
    Hero grid — dots of light travelling along the grid lines.
    Each dot runs along a line, sometimes turns at an intersection, leaves a
    short trail and lights up the grid lines around it. Canvas sits on top of
@@ -540,6 +560,16 @@ function renderCalendar(lang) {
   var w = 0, h = 0, dpr = 1, dots = [], last = 0, raf = 0, visible = true;
   var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
 
+  // Colours as [base, highlight] "r, g, b". Christmas mode swaps indigo for
+  // red / green / gold / ice and adds pixel snow.
+  var XMAS = document.documentElement.classList.contains("xmas");
+  var COLORS = XMAS
+    ? [["230, 40, 70", "255, 120, 140"], ["30, 200, 110", "120, 255, 170"],
+       ["240, 180, 40", "255, 220, 130"], ["60, 190, 255", "160, 230, 255"]]
+    : [["91, 91, 240", "150, 150, 255"]];
+  var flakes = [];
+  if (XMAS) COUNT = 9;
+
   function rand(n) { return Math.floor(Math.random() * n); }
 
   function spawn(d) {
@@ -553,7 +583,31 @@ function renderCalendar(lang) {
     d.speed = SPEED * (0.7 + Math.random() * 0.6);
     d.trail = [];
     d.toNext = CELL;                     // px left to the next intersection
+    var col = COLORS[rand(COLORS.length)];
+    d.c = col[0]; d.h = col[1];
     return d;
+  }
+
+  function flake(f, top) {
+    f = f || {};
+    f.x = Math.random() * w;
+    f.y = top ? -4 : Math.random() * h;
+    f.size = Math.random() < 0.25 ? 3 : 2;           // square "pixels"
+    f.speed = 14 + Math.random() * 26;
+    f.phase = Math.random() * 6.28;
+    f.a = 0.25 + Math.random() * 0.5;
+    return f;
+  }
+
+  function snow(dt, now) {
+    for (var i = 0; i < flakes.length; i++) {
+      var f = flakes[i];
+      f.y += f.speed * dt;
+      if (f.y > h + 4) flake(f, true);
+      var x = f.x + Math.sin(now / 1400 + f.phase) * 12;
+      ctx.fillStyle = "rgba(225, 238, 255, " + f.a + ")";
+      ctx.fillRect(Math.round(x), Math.round(f.y), f.size, f.size);
+    }
   }
 
   function resize() {
@@ -562,6 +616,7 @@ function renderCalendar(lang) {
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (!dots.length) for (var i = 0; i < COUNT; i++) dots.push(spawn());
+    if (XMAS && !flakes.length) for (var j = 0; j < Math.round(w * h / 9000); j++) flakes.push(flake());
   }
 
   function step(d, dt) {
@@ -597,8 +652,8 @@ function renderCalendar(lang) {
     var x0 = Math.floor((d.x - GLOW) / CELL) * CELL, x1 = d.x + GLOW;
     var y0 = Math.floor((d.y - GLOW) / CELL) * CELL, y1 = d.y + GLOW;
     var g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, GLOW);
-    g.addColorStop(0, "rgba(140, 140, 255, " + 0.45 * a + ")");
-    g.addColorStop(1, "rgba(91, 91, 240, 0)");
+    g.addColorStop(0, "rgba(" + d.h + ", " + 0.45 * a + ")");
+    g.addColorStop(1, "rgba(" + d.c + ", 0)");
     ctx.strokeStyle = g;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -608,8 +663,8 @@ function renderCalendar(lang) {
 
     // Soft wash on the area itself.
     var f = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, GLOW * 0.8);
-    f.addColorStop(0, "rgba(91, 91, 240, " + 0.08 * a + ")");
-    f.addColorStop(1, "rgba(91, 91, 240, 0)");
+    f.addColorStop(0, "rgba(" + d.c + ", " + 0.08 * a + ")");
+    f.addColorStop(1, "rgba(" + d.c + ", 0)");
     ctx.fillStyle = f;
     ctx.fillRect(d.x - GLOW, d.y - GLOW, GLOW * 2, GLOW * 2);
   }
@@ -619,7 +674,7 @@ function renderCalendar(lang) {
     ctx.lineCap = "round";
     for (var i = 1; i < t.length; i++) {
       var k = i / t.length;
-      ctx.strokeStyle = "rgba(170, 170, 255, " + 0.7 * k * a + ")";
+      ctx.strokeStyle = "rgba(" + d.h + ", " + 0.7 * k * a + ")";
       ctx.lineWidth = 1 + k;
       ctx.beginPath();
       ctx.moveTo(t[i - 1][0] + 0.5, t[i - 1][1] + 0.5);
@@ -629,8 +684,8 @@ function renderCalendar(lang) {
     // Head: bright core + small halo.
     var hgl = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, 10);
     hgl.addColorStop(0, "rgba(255, 255, 255, " + 0.95 * a + ")");
-    hgl.addColorStop(0.3, "rgba(160, 160, 255, " + 0.6 * a + ")");
-    hgl.addColorStop(1, "rgba(91, 91, 240, 0)");
+    hgl.addColorStop(0.3, "rgba(" + d.h + ", " + 0.6 * a + ")");
+    hgl.addColorStop(1, "rgba(" + d.c + ", 0)");
     ctx.fillStyle = hgl;
     ctx.fillRect(d.x - 10, d.y - 10, 20, 20);
   }
@@ -648,6 +703,7 @@ function renderCalendar(lang) {
       trail(d, a);
     }
     ctx.globalCompositeOperation = "source-over";
+    if (XMAS) snow(dt, now);
     raf = visible ? requestAnimationFrame(frame) : 0;
   }
 
