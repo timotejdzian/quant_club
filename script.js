@@ -118,7 +118,7 @@ var I18N_EN = {
 
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
-  "applications.lede": "Applications are currently closed.",
+  "applications.lede": "We accept applications on a rolling basis throughout the whole semester. If you want to apply, send an email with your CV to <a href=\"mailto:info@praguequantclub.org\">info@praguequantclub.org</a>.",
   "applications.formLabel": "Submit your application via the form:",
   "applications.formButton": "Fill in the application",
   "applications.checklistHeading": "What to prepare",
