@@ -35,7 +35,15 @@ var EVENTS = [
   // { date: "2026-09-15", title: "Uvítací večer", titleEn: "Welcome night",
   //   location: "VŠE, místnost NB 350", description: "Zahájení nového semestru." },
   //
+  { date: "2026-11-26", title: "Wincent workshop",
+    location: "IES FSV UK, místnost 314", locationEn: "IES FSV UK, room 314" },
 ];
+
+/* Zobrazí se pod seznamem akcí, pokud nějaké jsou */
+var MORE_EVENTS_MESSAGE = {
+  cs: "Další akce oznámíme později.",
+  en: "More events will be announced later."
+};
 
 /* Zobrazí se, pokud v seznamu nejsou žádné budoucí akce */
 var EMPTY_UPCOMING_MESSAGE = {
@@ -260,7 +268,8 @@ function renderCalendar(lang) {
   if (upcoming.length === 0) {
     upcomingEl.innerHTML = '<p class="event-empty">' + EMPTY_UPCOMING_MESSAGE[lang] + "</p>";
   } else {
-    upcomingEl.innerHTML = upcoming.map(eventRow).join("");
+    upcomingEl.innerHTML = upcoming.map(eventRow).join("") +
+      '<p class="event-empty">' + MORE_EVENTS_MESSAGE[lang] + "</p>";
   }
 }
 
