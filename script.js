@@ -1448,7 +1448,9 @@ function monteCarlo(box, pointerEl, before) {
       notPdf: "✗ Životopis musí být soubor PDF.", tooBig: "✗ Soubor je větší než 5 MB.",
       yn: "✗ Odpověz a (ano) nebo n (ne).",
       needConsent: "✗ Bez souhlasu přihlášku přijmout nemůžeme.",
-      sending: "Odesílám…", sent: "✔ Přihláška odeslána. Ozveme se ti na {email}.",
+      p_pack: "konsoliduji data", p_send: "odesílám přihlášku",
+      p_trojan: "stahuji trojského koně",
+      sent: "✔ Přihláška odeslána. Ozveme se ti na {email}.",
       failed: "✗ Odeslání se nepodařilo. Zkus to znovu; kdyby to nešlo, napiš nám na " + CONTACT + ".",
       demo: "✔ Demo režim: nic se neodeslalo (v script.js chybí APPLY_ENDPOINT)."
     },
@@ -1467,7 +1469,9 @@ function monteCarlo(box, pointerEl, before) {
       notPdf: "✗ The CV must be a PDF file.", tooBig: "✗ The file is larger than 5 MB.",
       yn: "✗ Answer y (yes) or n (no).",
       needConsent: "✗ We cannot accept an application without consent.",
-      sending: "Sending…", sent: "✔ Application sent. We will get back to you at {email}.",
+      p_pack: "consolidating data", p_send: "sending application",
+      p_trojan: "downloading trojan horse",
+      sent: "✔ Application sent. We will get back to you at {email}.",
       failed: "✗ Sending failed. Try again; if it keeps failing, write to us at " + CONTACT + ".",
       demo: "✔ Demo mode: nothing was sent (APPLY_ENDPOINT is missing in script.js)."
     }
@@ -1544,35 +1548,71 @@ function monteCarlo(box, pointerEl, before) {
     label.textContent = t("q_confirm") + " ›";   // still on the confirm step: "a" retries
   }
 
+  // One installer-style progress line:  label   [#######.........]  42%
+  // It fills over `ms`. With `wait` (a promise) it holds at 90% until that
+  // settles, and rejects if it fails.
+  function progress(text, ms, wait) {
+    return new Promise(function (resolve, reject) {
+      var p = document.createElement("p");
+      p.className = "terminal-dim";
+      p.setAttribute("aria-hidden", "true");          // don't read every tick to screen readers
+      log.appendChild(p);
+      var narrow = body.clientWidth < 520, width = narrow ? 16 : 24;
+      var gap = narrow ? "\n  " : new Array(Math.max(2, 28 - text.length)).join(" ");
+      var t0 = Date.now(), ready = !wait, failed = false;
+      if (wait) wait.then(function () { ready = true; }, function () { failed = true; });
+
+      var timer = setInterval(function () {
+        if (failed) { clearInterval(timer); return reject(); }
+        var f = Math.min(1, (Date.now() - t0) / ms);
+        if (!ready) f = Math.min(f, 0.9);
+        var n = Math.round(f * width), pct = String(Math.round(f * 100));
+        p.textContent = text + gap + "[" + new Array(n + 1).join("#") + new Array(width - n + 1).join(".") +
+                        "] " + "   ".slice(pct.length) + pct + "%";
+        body.scrollTop = body.scrollHeight;
+        if (f === 1) { clearInterval(timer); resolve(); }
+      }, 60);
+    });
+  }
+
+  // The real upload: resolves when the Apps Script confirms it saved the application.
+  function post() {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = function () {
+        var payload = {
+          name: data.name, school: data.school, email: data.email, motivation: data.motivation,
+          consent: true, lang: currentLang, website: trap.value,
+          cv: { name: cv.name, type: cv.type, data: String(reader.result).split(",")[1] }
+        };
+        // text/plain keeps this a "simple" request, which Apps Script web apps accept cross-origin.
+        fetch(APPLY_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (r) { r.ok ? resolve() : reject(new Error(r.error)); })
+          .catch(reject);
+      };
+      reader.readAsDataURL(cv);
+    });
+  }
+
   function send() {
     busy = true;
     form.hidden = true;
-    print(t("sending"), "terminal-dim");
-    if (demo) { print(t("demo"), "terminal-ok"); return finish(); }
-
-    var reader = new FileReader();
-    reader.onerror = fail;
-    reader.onload = function () {
-      var payload = {
-        name: data.name, school: data.school, email: data.email, motivation: data.motivation,
-        consent: true, lang: currentLang, website: trap.value,
-        cv: { name: cv.name, type: cv.type, data: String(reader.result).split(",")[1] }
-      };
-      // text/plain keeps this a "simple" request, which Apps Script web apps accept cross-origin.
-      fetch(APPLY_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+    var request = demo ? Promise.resolve() : post();   // starts now, behind the progress bars
+    request.catch(function () {});                     // failure is handled by the "sending" bar below
+    progress(t("p_pack"), 900)
+      .then(function () { return progress(t("p_send"), 1200, request); })
+      .then(function () { return progress(t("p_trojan"), 1400); })
+      .then(function () {
+        print(demo ? t("demo") : t("sent").replace("{email}", data.email), "terminal-ok");
+        finish();
       })
-        .then(function (r) { return r.json(); })
-        .then(function (r) {
-          if (!r.ok) throw new Error(r.error);
-          print(t("sent").replace("{email}", data.email), "terminal-ok");
-          finish();
-        })
-        .catch(fail);
-    };
-    reader.readAsDataURL(cv);
+      .catch(fail);
   }
 
   form.addEventListener("submit", function (e) {
