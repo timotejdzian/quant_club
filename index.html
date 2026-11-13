@@ -50,7 +50,11 @@
     <section class="hero" id="hero" aria-label="Úvod">
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-glow" aria-hidden="true"></div>
+      <!-- Seasonal greetings: hidden unless script.js sets html.xmas / .newyear / .nov17 -->
+      <p class="hero-greeting hero-greeting--xmas" data-i18n="hero.xmas">Veselé Vianoce</p>
       <div class="hero-inner">
+        <p class="hero-greeting hero-greeting--newyear" data-i18n="hero.newyear">Šťastný nový rok!</p>
+        <p class="hero-greeting hero-greeting--nov17" data-i18n="hero.nov17">17. listopad · Mezinárodní den studentstva</p>
         <h1 class="hero-title">Prague<br>Quant Club</h1>
         <p class="hero-tagline" data-i18n="hero.tagline">Kde se matematika potkává s trhy.</p>
         <div class="hero-actions">
@@ -77,11 +81,11 @@
         <!-- Řádek se statistikami -->
         <div class="stats reveal" role="list">
           <div class="stat" role="listitem">
-            <span class="stat-number">-</span>
+            <span class="stat-number">18</span>
             <span class="stat-label" data-i18n="stats.members">Členů</span>
           </div>
           <div class="stat" role="listitem">
-            <span class="stat-number">-</span>
+            <span class="stat-number">3</span>
             <span class="stat-label" data-i18n="stats.partners">Partnerských firem</span>
           </div>
         </div>

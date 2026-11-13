@@ -71,6 +71,9 @@ var I18N_EN = {
   "hero.tagline": "Where mathematics meets the markets.",
   "hero.ctaJoin": "Join us",
   "hero.ctaEvents": "Upcoming events",
+  "hero.nov17": "17 November · International Students' Day",
+  "hero.xmas": "Merry Christmas",
+  "hero.newyear": "Happy New Year!",
 
   "about.eyebrow": "About",
   "about.heading": "A community of people passionate about quantitative finance.",
@@ -525,16 +528,20 @@ function renderCalendar(lang) {
 })();
 
 /* ==========================================================================
-   Christmas mode — on automatically from 1 Dec to 6 Jan, or with ?xmas in
+   Christmas mode — on automatically from 1 Dec to 26 Dec, or with ?xmas in
    the URL to preview. Adds a neon LED string under the nav; the hero lights
    (below) switch to Christmas colours and add pixel snow.
    ========================================================================== */
 (function () {
   var now = new Date(), m = now.getMonth(), d = now.getDate();
-  var on = /[?&]xmas\b/.test(location.search) || m === 11 || (m === 0 && d <= 6);
+  // New Year (31 Dec + 1 Jan, or ?newyear to preview): greeting swaps to
+  // "Happy New Year" and the hero gets fireworks (further below).
+  var ny = /[?&]newyear\b/.test(location.search) || (m === 11 && d === 31) || (m === 0 && d === 1);
+  var on = ny || /[?&]xmas\b/.test(location.search) || (m === 11 && d <= 26);
   var header = document.getElementById("site-header");
   if (!on || !header) return;
   document.documentElement.classList.add("xmas");
+  if (ny) document.documentElement.classList.add("newyear");
 
   var string = document.createElement("div");
   string.className = "xmas-lights";
@@ -542,6 +549,17 @@ function renderCalendar(lang) {
   var n = Math.ceil(Math.max(window.innerWidth, screen.width) / 34);
   for (var i = 0; i < n; i++) string.appendChild(document.createElement("span"));
   header.appendChild(string);
+})();
+
+/* ==========================================================================
+   Hero background — one style per visit, stored on <html data-hero>:
+   always "montecarlo" (Christmas mode adds snow on top of it). Preview the
+   others with ?hero=lights|candles.
+   ========================================================================== */
+(function () {
+  var STYLES = ["montecarlo"];   // add "lights" / "candles" here to randomise again
+  var forced = (location.search.match(/[?&]hero=(lights|candles|montecarlo)\b/) || [])[1];
+  document.documentElement.dataset.hero = forced || STYLES[Math.floor(Math.random() * STYLES.length)];
 })();
 
 /* ==========================================================================
@@ -553,9 +571,13 @@ function renderCalendar(lang) {
 (function () {
   var hero = document.getElementById("hero");
   var wrap = hero && hero.querySelector(".hero-grid");
-  if (!wrap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // Runs for the "lights" hero, and in Christmas mode on any hero (snow only).
+  var XMAS = document.documentElement.classList.contains("xmas");
+  var LIGHTS = document.documentElement.dataset.hero === "lights";
+  if (!wrap || !(LIGHTS || XMAS) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  var CELL = 56;          // must match background-size in .hero-grid
+  var CELL = 56;         // must match background-size in .hero-grid
   var COUNT = 7;          // dots on screen
   var SPEED = 110;        // px per second
   var GLOW = 120;         // radius of the lit area around a dot
@@ -571,13 +593,13 @@ function renderCalendar(lang) {
 
   // Colours as [base, highlight] "r, g, b". Christmas mode swaps indigo for
   // red / green / gold / ice and adds pixel snow.
-  var XMAS = document.documentElement.classList.contains("xmas");
   var COLORS = XMAS
     ? [["230, 40, 70", "255, 120, 140"], ["30, 200, 110", "120, 255, 170"],
        ["240, 180, 40", "255, 220, 130"], ["60, 190, 255", "160, 230, 255"]]
     : [["91, 91, 240", "150, 150, 255"]];
   var flakes = [];
   if (XMAS) COUNT = 9;
+  if (!LIGHTS) COUNT = 0;   // another hero style is showing: snow only, no dots
 
   function rand(n) { return Math.floor(Math.random() * n); }
 
@@ -724,4 +746,509 @@ function renderCalendar(lang) {
 
   window.addEventListener("resize", resize);
   resize();
+})();
+
+/* Hero style "candles" — live BTC/USDT 1-second candles behind the title.
+   Data: Binance public market-data API (REST for history, WebSocket for live),
+   no key needed. If it can't be reached, simulated candles are shown instead.
+   Monochrome. Hover: terminal-style crosshair, price label, OHLC readout. */
+(function () {
+  if (document.documentElement.dataset.hero !== "candles") return;
+  var hero = document.getElementById("hero");
+  var wrap = hero && hero.querySelector(".hero-grid");
+  if (!wrap) return;
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var STEP = 14, BODY = 8, SPEED = 16;   // px per candle, body width (thinner on phones, see resize), px/s simulated
+  var REST = "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1s&limit=";
+  var STREAM = "wss://data-stream.binance.vision/ws/btcusdt@kline_1s";
+  var INK = "233, 235, 241";
+  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+
+  var canvas = document.createElement("canvas");
+  var ctx = canvas.getContext("2d");
+  wrap.appendChild(canvas);
+
+  var w = 0, h = 0, dpr = 1, candles = [], offset = 0, last = 0;
+  var lo = 0, hi = 1, mouse = null, price = 100, live = false;
+
+  // The chart fills the left 86% of the hero; price labels sit to its right.
+  function slots() { return Math.ceil(w * 0.86 / STEP); }
+  function labelX() { return Math.round(w * 0.86) + 10; }
+
+  function next() {
+    var o = price, c = o * (1 + (Math.random() - 0.495) * 0.03);
+    var hgh = Math.max(o, c) * (1 + Math.random() * 0.01);
+    var low = Math.min(o, c) * (1 - Math.random() * 0.01);
+    price = c;
+    return { o: o, h: hgh, l: low, c: c };
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = wrap.clientWidth; h = wrap.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    STEP = w < 600 ? 8 : 14; BODY = w < 600 ? 4 : 8;
+    if (!live) while (candles.length < slots() + 1) candles.push(next());
+    range(1);
+  }
+
+  // Candle length in ms. Binance sends 1 s klines; a larger BUCKET merges them.
+  // The same 1 s kline arrives repeatedly (it updates within its second) — harmless.
+  var BUCKET = 1000;
+  function add(t, o, hgh, l, c) {
+    var bt = Math.floor(t / BUCKET) * BUCKET, lastC = candles[candles.length - 1];
+    if (lastC && lastC.t === bt) {
+      lastC.h = Math.max(lastC.h, +hgh); lastC.l = Math.min(lastC.l, +l); lastC.c = +c;
+    } else if (!lastC || bt > lastC.t) {        // new candle: shift left smoothly
+      candles.push({ t: bt, o: +o, h: +hgh, l: +l, c: +c });
+      while (candles.length > slots()) { candles.shift(); offset -= STEP; }
+      offset = Math.max(offset, -STEP * 3);
+    }
+  }
+
+  function loadLive() {
+    fetch(REST + Math.min(1000, slots() * BUCKET / 1000))
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (rows) {
+        if (!rows.length) return;
+        candles = [];
+        rows.forEach(function (k) { add(k[0], k[1], k[2], k[3], k[4]); });
+        live = true; offset = 0; range(1);
+        still ? draw() : connect();
+      })
+      .catch(function () { /* keep the simulated candles */ });
+  }
+
+  function connect() {
+    var ws = new WebSocket(STREAM);
+    ws.onmessage = function (e) {
+      var k = JSON.parse(e.data).k;
+      add(k.t, k.o, k.h, k.l, k.c);
+    };
+    ws.onclose = function () { setTimeout(connect, 5000); };
+  }
+
+  // Ease the price scale towards the visible min/max so it never jumps.
+  function range(k) {
+    var a = Infinity, b = -Infinity;
+    candles.forEach(function (c) { a = Math.min(a, c.l); b = Math.max(b, c.h); });
+    lo += (a - lo) * k; hi += (b - hi) * k;
+  }
+  function y(p) { return h * 0.78 - (p - lo) / (hi - lo || 1) * h * 0.5; }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineWidth = 1;
+    var hover = mouse ? Math.floor((mouse.x + offset) / STEP) : -1;
+
+    // Moving average.
+    ctx.beginPath();
+    var sum = 0;
+    candles.forEach(function (c, i) {
+      sum += c.c; if (i >= 10) sum -= candles[i - 10].c;
+      var x = i * STEP - offset + STEP / 2, m = sum / Math.min(i + 1, 10);
+      i ? ctx.lineTo(x, y(m)) : ctx.moveTo(x, y(m));
+    });
+    ctx.strokeStyle = "rgba(" + INK + ", 0.22)";
+    ctx.stroke();
+
+    candles.forEach(function (c, i) {
+      var x = Math.round(i * STEP - offset) + 0.5, a = i === hover ? 0.75 : 0.2;
+      ctx.strokeStyle = ctx.fillStyle = "rgba(" + INK + ", " + a + ")";
+      ctx.beginPath();
+      ctx.moveTo(x + BODY / 2, y(c.h)); ctx.lineTo(x + BODY / 2, y(c.l));
+      ctx.stroke();
+      var top = y(Math.max(c.o, c.c)), hgt = Math.max(1, y(Math.min(c.o, c.c)) - top);
+      if (c.c >= c.o) ctx.strokeRect(x, top, BODY, hgt);   // up: hollow
+      else ctx.fillRect(x, top, BODY, hgt);                // down: filled
+    });
+
+    // Last price line + label.
+    var lastC = candles[candles.length - 1], ly = Math.round(y(lastC.c)) + 0.5;
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = "rgba(" + INK + ", 0.25)";
+    ctx.beginPath(); ctx.moveTo(0, ly); ctx.lineTo(w, ly); ctx.stroke();
+    ctx.font = FONT; ctx.textBaseline = "middle";
+    label(lastC.c.toFixed(2), labelX(), ly, 0.5);
+    if (live) {
+      ctx.fillStyle = "rgba(" + INK + ", 0.45)";
+      var tag = "BTC/USDT · " + BUCKET / 1000 + "s · live";
+      ctx.fillText(tag, Math.min(labelX() - 6, w - ctx.measureText(tag).width - 8), ly - 22);
+    }
+
+    if (mouse) {
+      var mx = Math.round(mouse.x) + 0.5, my = Math.round(mouse.y) + 0.5;
+      ctx.strokeStyle = "rgba(" + INK + ", 0.35)";
+      ctx.beginPath();
+      ctx.moveTo(mx, 0); ctx.lineTo(mx, h); ctx.moveTo(0, my); ctx.lineTo(w, my);
+      ctx.stroke();
+      var p = lo + (h * 0.78 - mouse.y) / (h * 0.5) * (hi - lo);
+      label(p.toFixed(2), labelX(), my, 0.9);
+      var c = candles[hover];
+      if (c) {
+        ctx.fillStyle = "rgba(" + INK + ", 0.8)";
+        ctx.fillText((c.t ? new Date(c.t).toLocaleTimeString("cs-CZ") + "  " : "") +
+                     "O " + c.o.toFixed(2) + "  H " + c.h.toFixed(2) +
+                     "  L " + c.l.toFixed(2) + "  C " + c.c.toFixed(2), mx + 10, my - 14);
+      }
+    }
+    ctx.setLineDash([]);
+  }
+
+  function label(text, x, yy, a) {
+    var bw = Math.ceil(ctx.measureText(text).width) + 12;
+    x = Math.min(x, w - bw);   // stay on screen on narrow phones
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(7, 8, 12, 0.9)";
+    ctx.fillRect(x - 6, yy - 9, bw, 18);
+    ctx.strokeStyle = "rgba(" + INK + ", " + a * 0.5 + ")";
+    ctx.strokeRect(x - 5.5, yy - 8.5, bw - 1, 17);
+    ctx.fillStyle = "rgba(" + INK + ", " + a + ")";
+    ctx.fillText(text, x, yy);
+    ctx.setLineDash([3, 4]);
+  }
+
+  var onScreen = true;   // skip work while the hero is scrolled away
+  new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; }).observe(hero);
+
+  function frame(now) {
+    if (!onScreen) { last = 0; requestAnimationFrame(frame); return; }
+    var dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now;
+    if (live) offset += (0 - offset) * Math.min(1, dt * 8);   // ease into the new candle
+    else {
+      offset += SPEED * dt;
+      while (offset >= STEP) { offset -= STEP; candles.shift(); candles.push(next()); }
+    }
+    range(0.12);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  hero.addEventListener("pointermove", function (e) {
+    var r = wrap.getBoundingClientRect();
+    mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+    if (still) draw();
+  });
+  hero.addEventListener("pointerleave", function () { mouse = null; if (still) draw(); });
+  window.addEventListener("resize", resize);
+  resize();
+  still ? draw() : requestAnimationFrame(frame);
+  loadLive();
+})();
+
+/* Hero style "montecarlo" — Monte Carlo price paths.
+   Random walks fan out from the left; where they end builds a histogram on the
+   right that converges to the bell curve (dashed). Mouse x = volatility σ,
+   mouse y = drift μ. Monochrome. */
+/* box = element the canvas fills, pointerEl = element that listens for the
+   mouse, before = optional child of box to insert the canvas in front of. */
+function monteCarlo(box, pointerEl, before) {
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var STEP = 6, GROW = 650, LIFE = 4, EVERY = 0.12, MAX = 60, BIN = 16;
+  var INK = "233, 235, 241";
+  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+  var XMAS_DOTS = document.documentElement.classList.contains("xmas") &&
+    ["255, 60, 90", "50, 230, 130", "255, 200, 60", "60, 200, 255"];   // red, green, gold, ice
+
+  var canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+  var ctx = canvas.getContext("2d");
+  box.insertBefore(canvas, before || null);
+
+  var w = 0, h = 0, dpr = 1, paths = [], bins = [], last = 0, clock = 0, timer = 0;
+  var sigma = 0.25, mu = 0.05, target = { s: 0.25, m: 0.05 }, mouse = null;
+  var x0, y0, x1, span;
+
+  function gauss() {
+    return Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(6.2832 * Math.random());
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (box.clientWidth === w && box.clientHeight === h) return;   // phone URL bar show/hide
+    w = box.clientWidth; h = box.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    x0 = w * 0.06; x1 = w * 0.84; y0 = h * 0.55; span = h * 0.55;
+    bins = new Array(Math.ceil(h / BIN)).fill(0);
+    paths = [];
+  }
+
+  function spawn() {
+    var n = Math.ceil((x1 - x0) / STEP), y = y0, pts = [y];
+    var sd = sigma * span / Math.sqrt(n), drift = -mu * span / n;
+    for (var i = 0; i < n; i++) { y += drift + sd * gauss(); pts.push(y); }
+    // Christmas mode: about half of the path heads get a festive colour.
+    var c = XMAS_DOTS && Math.random() < 0.5 ? XMAS_DOTS[Math.floor(Math.random() * 4)] : "";
+    return { pts: pts, len: 0, age: 0, done: false, c: c };
+  }
+
+  function update(dt) {
+    sigma += (target.s - sigma) * 0.08; mu += (target.m - mu) * 0.08;
+    timer += dt;
+    while (timer > EVERY) { timer -= EVERY; if (paths.length < MAX) paths.push(spawn()); }
+    var decay = Math.exp(-dt / 45);
+    for (var b = 0; b < bins.length; b++) bins[b] *= decay;
+    paths = paths.filter(function (p) {
+      p.len = Math.min(p.pts.length - 1, p.len + GROW * dt / STEP);
+      if (!p.done && p.len >= p.pts.length - 1) {
+        p.done = true;
+        var k = Math.floor(p.pts[p.pts.length - 1] / BIN);
+        if (k >= 0 && k < bins.length) bins[k] += 1;
+      }
+      if (p.done) p.age += dt;
+      return p.age < LIFE;
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineWidth = 1;
+    paths.forEach(function (p) {
+      var a = 0.34 * (1 - p.age / LIFE);
+      ctx.strokeStyle = "rgba(" + INK + ", " + a + ")";
+      ctx.beginPath();
+      ctx.moveTo(x0, p.pts[0]);
+      for (var i = 1; i <= p.len; i++) ctx.lineTo(x0 + i * STEP, p.pts[i]);
+      ctx.stroke();
+      if (!p.done) {   // bright head while the path is still drawing
+        var i2 = Math.floor(p.len);
+        var r = p.c ? 2.5 : 1.5;
+        ctx.fillStyle = p.c ? "rgb(" + p.c + ")" : "rgba(" + INK + ", 0.95)";
+        ctx.fillRect(x0 + i2 * STEP - r, p.pts[i2] - r, r * 2, r * 2);
+      }
+    });
+
+    // Fade the paths behind the title and tagline so the text stays readable.
+    var rx = Math.min(w * 0.48, 460), ry = h * 0.3;
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.translate(w / 2, h / 2); ctx.scale(1, ry / rx);
+    var fade = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    fade.addColorStop(0, "rgba(0, 0, 0, 0.75)");
+    fade.addColorStop(0.6, "rgba(0, 0, 0, 0.6)");
+    fade.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = fade;
+    ctx.fillRect(-rx, -rx, rx * 2, rx * 2);
+    ctx.restore();
+
+    // Histogram of end points.
+    // Bars and the theoretical normal density share one scale.
+    var sdPx = sigma * span, mean = y0 - mu * span, total = 0;
+    for (var t = 0; t < bins.length; t++) total += bins[t];
+    var peak = total * BIN / (sdPx * 2.5066);                 // expected count in the top bin
+    var hx = w * 0.865, hw = w * 0.11;
+    var max = Math.max.apply(null, bins.concat(peak, 3));
+    ctx.fillStyle = "rgba(" + INK + ", 0.34)";
+    bins.forEach(function (c, k) {
+      if (c > 0.05) ctx.fillRect(hx, k * BIN + 1, c / max * hw, BIN - 2);
+    });
+    var scale = peak / max * hw;
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = "rgba(" + INK + ", 0.65)";
+    ctx.beginPath();
+    for (var yy = 0; yy <= h; yy += 4) {
+      var z = (yy - mean) / sdPx, x = hx + Math.min(hw * 1.2, Math.exp(-z * z / 2) * scale);
+      yy ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Origin marker + parameter readout.
+    ctx.fillStyle = "rgba(" + INK + ", 0.8)";
+    ctx.fillRect(x0 - 2, y0 - 2, 4, 4);
+    ctx.font = FONT;
+    ctx.fillStyle = "rgba(" + INK + ", " + (mouse ? 0.9 : 0.6) + ")";
+    var txt = "σ " + sigma.toFixed(2) + "   μ " + (mu >= 0 ? "+" : "") + mu.toFixed(2);
+    if (mouse) ctx.fillText(txt, mouse.x + 14, mouse.y - 10);
+    else ctx.fillText(txt, x0, y0 + span * 0.5 + 18);
+  }
+
+  var onScreen = true;   // skip work while the box is scrolled away
+  new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; }).observe(box);
+
+  function frame(now) {
+    if (!onScreen) { last = 0; requestAnimationFrame(frame); return; }
+    var dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now; clock += dt;
+    if (!mouse) {   // idle: let the parameters wander a little
+      target.s = 0.25 + Math.sin(clock / 7) * 0.08;
+      target.m = Math.sin(clock / 11) * 0.12;
+    }
+    update(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  pointerEl.addEventListener("pointermove", function (e) {
+    var r = box.getBoundingClientRect();
+    mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+    target.s = Math.max(0.08, 0.08 + 0.45 * mouse.x / w);
+    target.m = 0.3 - 0.6 * mouse.y / h;
+  });
+  pointerEl.addEventListener("pointerleave", function () { mouse = null; });
+  window.addEventListener("resize", resize);
+  resize();
+
+  if (still) {   // one static frame of finished paths
+    for (var i = 0; i < 60; i++) {
+      var p = spawn(), end = p.pts[p.pts.length - 1];
+      p.len = p.pts.length - 1; p.done = true; p.age = LIFE / 2;
+      if (end >= 0 && end < h) bins[Math.floor(end / BIN)] += 1;
+      paths.push(p);
+    }
+    draw();
+  } else requestAnimationFrame(frame);
+}
+
+(function () {
+  if (document.documentElement.dataset.hero !== "montecarlo") return;
+  var hero = document.getElementById("hero");
+  var inner = hero && hero.querySelector(".hero-inner");
+  if (inner) monteCarlo(hero, hero, inner);
+})();
+
+/* New Year fireworks over the hero (html.newyear, set in Christmas mode above).
+   Rockets climb from the bottom and burst into sparks that fall and fade. */
+(function () {
+  var hero = document.getElementById("hero");
+  var inner = hero && hero.querySelector(".hero-inner");
+  if (!inner || !document.documentElement.classList.contains("newyear") ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var COLORS = ["255, 60, 90", "50, 230, 130", "255, 200, 60", "60, 200, 255", "255, 255, 255"];
+  var canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+  var ctx = canvas.getContext("2d");
+  hero.insertBefore(canvas, inner);
+
+  var w = 0, h = 0, rockets = [], sparks = [], last = 0, timer = 0, onScreen = true;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = hero.clientWidth; h = hero.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function burst(r) {
+    var n = 50 + Math.floor(Math.random() * 40);
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * 6.2832, s = 40 + Math.random() * 190;
+      sparks.push({ x: r.x, y: r.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, c: r.c });
+    }
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!onScreen) { last = 0; return; }
+    var dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now;
+
+    timer -= dt;
+    if (timer <= 0) {
+      timer = 0.4 + Math.random() * 0.9;
+      var ty = h * (0.12 + Math.random() * 0.4);
+      rockets.push({ x: w * (0.1 + Math.random() * 0.8), y: h, ty: ty, vy: (ty - h) / 0.9,
+                     c: COLORS[Math.floor(Math.random() * COLORS.length)] });
+    }
+
+    // Fade the previous frame instead of clearing it: leaves short trails.
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = "lighter";
+
+    rockets = rockets.filter(function (r) {
+      r.y += r.vy * dt;
+      ctx.fillStyle = "rgba(" + r.c + ", 0.9)";
+      ctx.fillRect(r.x - 1, r.y, 2, 6);
+      if (r.y > r.ty) return true;
+      burst(r);
+      return false;
+    });
+    sparks = sparks.filter(function (s) {
+      var drag = 1 - 1.5 * dt;
+      s.vx *= drag; s.vy = s.vy * drag + 90 * dt;      // air drag + gravity
+      s.x += s.vx * dt; s.y += s.vy * dt;
+      s.life -= dt / 1.6;
+      if (s.life <= 0) return false;
+      ctx.fillStyle = "rgba(" + s.c + ", " + s.life + ")";
+      ctx.fillRect(s.x - 1.25, s.y - 1.25, 2.5, 2.5);
+      return true;
+    });
+  }
+
+  new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; }).observe(hero);
+  window.addEventListener("resize", resize);
+  resize();
+  requestAnimationFrame(frame);
+})();
+
+/* 17 November — Velvet Revolution / International Students' Day (that day
+   only, or ?nov17 to preview). Shows the greeting above the title
+   (html.nov17) and a crowd of jingling keys along the bottom of the hero,
+   under the Monte Carlo simulation. */
+(function () {
+  var now = new Date();
+  var on = /[?&]nov17\b/.test(location.search) || (now.getMonth() === 10 && now.getDate() === 17);
+  var hero = document.getElementById("hero");
+  var inner = hero && hero.querySelector(".hero-inner");
+  if (!on || !inner) return;
+  document.documentElement.classList.add("nov17");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+  var ctx = canvas.getContext("2d");
+  hero.insertBefore(canvas, inner);
+
+  var w = 0, h = 0, keys = [], onScreen = true;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = hero.clientWidth; h = hero.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    keys = [];
+    for (var x = 8; x < w; x += 9 + Math.random() * 14) {
+      keys.push({ x: x, y: h * (0.8 + Math.random() * 0.14), s: 6 + Math.random() * 7,
+                  f: 5 + Math.random() * 6, p: Math.random() * 6.28, a: 0.2 + Math.random() * 0.5 });
+    }
+    draw(0);
+  }
+
+  // One key hanging from the top of its ring, swinging around that point.
+  function draw(t) {
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineWidth = 1.5; ctx.lineCap = "round";
+    keys.forEach(function (k) {
+      var s = k.s;
+      ctx.save();
+      ctx.translate(k.x, k.y);
+      ctx.rotate(Math.sin(t * k.f + k.p) * 0.45);
+      ctx.strokeStyle = "rgba(233, 235, 241, " + k.a + ")";
+      ctx.beginPath();
+      ctx.arc(0, s * 0.45, s * 0.45, 0, 6.2832);                      // ring
+      ctx.moveTo(0, s * 0.9); ctx.lineTo(0, s * 2.4);                 // shaft
+      ctx.lineTo(s * 0.5, s * 2.4);                                   // teeth
+      ctx.moveTo(0, s * 2); ctx.lineTo(s * 0.35, s * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (onScreen) draw(now / 1000);
+  }
+
+  new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; }).observe(hero);
+  window.addEventListener("resize", resize);
+  resize();
+  if (!still) requestAnimationFrame(frame);
 })();
