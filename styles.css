@@ -735,6 +735,40 @@ a:focus-visible {
   margin-top: 40px;
 }
 
+/* Volatility-surface canvas in the right half of the contact section */
+#contact { position: relative; }
+#contact .container { position: relative; }   /* text stays above the canvas */
+.contact-visual { position: absolute; top: 0; bottom: 0; right: 0; width: 55%; }
+/* Decorative formulas scattered in the empty parts of sections: white, dimmed,
+   tilted. Position and tilt come from inline --x (from right), --y (from top)
+   and --r on each element. They sit behind the section text. */
+.section { position: relative; overflow-x: clip; }
+.section > .container { position: relative; }
+.formula,
+.contact-formula {
+  position: absolute;
+  right: var(--x, 8%);
+  top: var(--y, auto);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.9;
+  white-space: nowrap;
+  color: var(--text);
+  opacity: 0.2;
+  transform: rotate(var(--r, -6deg));
+  pointer-events: none;
+}
+.formula sub, .formula sup,
+.contact-formula sub, .contact-formula sup { font-size: 0.65em; line-height: 0; }
+.contact-formula { right: 9%; bottom: 7%; font-size: 21px; opacity: 0.28; transform-origin: right bottom; --r: -7deg; }
+@media (max-width: 1100px) {
+  .formula { display: none; }
+}
+@media (max-width: 900px) {
+  .contact-visual { display: none; }
+}
+
 .contact-email a {
   font-family: var(--font-mono);
   font-size: 26px;

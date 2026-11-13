@@ -73,6 +73,10 @@
 
     <!-- ============ SEKCE 2 — O NÁS ============ -->
     <section class="section" id="about" aria-labelledby="about-heading">
+      <!-- Decorative formulas (styles.css .formula), hidden on narrow screens -->
+      <p class="formula" aria-hidden="true" style="--y:150px;--x:7%;--r:-6deg">dS = μS dt + σS dW</p>
+      <p class="formula" aria-hidden="true" style="--y:330px;--x:13%;--r:5deg">P(A|B) = P(B|A) P(A) / P(B)</p>
+      <p class="formula" aria-hidden="true" style="--y:520px;--x:6%;--r:-4deg">Sharpe = (E[R] − r<sub>f</sub>) / σ</p>
       <div class="container">
         <p class="eyebrow reveal" data-i18n="about.eyebrow">O&nbsp;nás</p>
         <h2 class="section-heading reveal" id="about-heading" data-i18n="about.heading">Komunita lidí se zájmem o kvantitativní finance.</h2>
@@ -191,6 +195,9 @@
 
     <!-- ============ SEKCE 4 — KALENDÁŘ ============ -->
     <section class="section" id="calendar" aria-labelledby="calendar-heading">
+      <!-- Decorative formulas (styles.css .formula), hidden on narrow screens -->
+      <p class="formula" aria-hidden="true" style="--y:130px;--x:8%;--r:6deg">C − P = S<sub>0</sub> − K e<sup>−rT</sup></p>
+      <p class="formula" aria-hidden="true" style="--y:420px;--x:12%;--r:-5deg">σ<sub>p</sub><sup>2</sup> = w<sup>T</sup> Σ w</p>
       <div class="container">
         <p class="eyebrow reveal" data-i18n="calendar.eyebrow">Kalendář</p>
         <h2 class="section-heading reveal" id="calendar-heading" data-i18n="calendar.heading">Nadcházející akce.</h2>
@@ -218,6 +225,13 @@
 
     <!-- ============ SEKCE 5 — KONTAKT ============ -->
     <section class="section" id="contact" aria-labelledby="contact-heading">
+      <!-- Decorative formulas (styles.css .formula), hidden on narrow screens -->
+      <p class="formula" aria-hidden="true" style="--y:auto;--x:auto;--r:5deg;left:9%;bottom:70px">φ(x) = e<sup>−x²/2</sup> / √2π</p>
+      <!-- Animated volatility surface (script.js), fills the empty right half -->
+      <div class="contact-visual" aria-hidden="true">
+        <!-- Black–Scholes call price, decorative -->
+        <p class="contact-formula">C = S<sub>0</sub> N(d<sub>1</sub>) − K e<sup>−rT</sup> N(d<sub>2</sub>)<br>d<sub>1,2</sub> = [ ln(S<sub>0</sub>/K) + (r ± σ<sup>2</sup>/2) T ] / σ√T</p>
+      </div>
       <div class="container">
         <p class="eyebrow reveal" data-i18n="contact.eyebrow">Kontakt</p>
         <h2 class="section-heading reveal" id="contact-heading" data-i18n="contact.heading">Ozvěte se nám.</h2>
@@ -247,6 +261,9 @@
 
     <!-- ============ SEKCE 7 — PŘIHLÁŠKY ============ -->
     <section class="section" id="prihlasky" aria-labelledby="applications-heading">
+      <!-- Decorative formulas (styles.css .formula), hidden on narrow screens -->
+      <p class="formula" aria-hidden="true" style="--y:130px;--x:7%;--r:-5deg">f* = p − (1 − p) / b</p>
+      <p class="formula" aria-hidden="true" style="--y:240px;--x:14%;--r:4deg">E[R<sub>i</sub>] = r<sub>f</sub> + β<sub>i</sub> (E[R<sub>m</sub>] − r<sub>f</sub>)</p>
       <div class="container">
         <p class="eyebrow reveal" data-i18n="applications.eyebrow">Přihlášky</p>
         <h2 class="section-heading reveal" id="applications-heading" data-i18n="applications.heading">Přihlášky</h2>

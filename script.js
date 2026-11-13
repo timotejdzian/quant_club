@@ -1261,3 +1261,141 @@ function monteCarlo(box, pointerEl, before) {
   resize();
   if (!still) requestAnimationFrame(frame);
 })();
+
+/* Contact section — implied volatility surface as a stack of smile curves
+   (.contact-visual, the empty right half; hidden on narrow screens).
+   One curve σ(K) per maturity T: steep, skewed smiles in front (short T)
+   flattening towards the back (long T). Each curve hides the ones behind it.
+   The skew sways slowly; mouse x sets the skew, mouse y the viewing tilt. */
+(function () {
+  var section = document.getElementById("contact");
+  var box = section && section.querySelector(".contact-visual");
+  if (!box) return;
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var NT = 24, NK = 70;                    // maturities (curves) x strikes (points)
+  var INK = "233, 235, 241", ACCENT = "120, 120, 255", BG = "#07080c";   // BG = --bg
+  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+
+  var canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%";
+  var ctx = canvas.getContext("2d");
+  box.appendChild(canvas);
+
+  var w = 0, h = 0, last = 0, clock = 0, onScreen = false, mouse = false;
+  var skew = 0.15, tilt = 0.3, target = { skew: 0.15, tilt: 0.3 };
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = box.clientWidth; h = box.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (still) draw();
+  }
+
+  // k in [-1, 1] (strike around the money), t in [0, 1] (maturity).
+  function vol(k, t) {
+    var near = 0.25 + 0.75 * Math.exp(-2.4 * t);         // smile fades with maturity
+    return 0.16 + 0.1 * t + (0.5 * k * k - skew * k) * near +
+           0.018 * Math.sin(k * 5 + t * 6 - clock * 0.9);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    var W = Math.min(w * 0.6, 440), amp = W * 0.42;       // curve width, height of σ = 1
+    var dx = W * 0.3, dy = Math.min(h * tilt, 260);       // how far the back row is shifted
+    var left = (w - W - dx) / 2, bottom = h * 0.5 + (dy + amp * 0.5) / 2;
+    var SMAX = 0.8, s, q;                                 // top of the σ axis
+    ctx.font = FONT; ctx.lineJoin = "round";
+
+    // Box behind the surface: floor outline, back wall and left wall with σ grid lines.
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(" + INK + ", 0.13)";
+    ctx.beginPath();
+    ctx.moveTo(left, bottom); ctx.lineTo(left + dx, bottom - dy);                  // floor, left edge
+    ctx.lineTo(left + dx + W, bottom - dy); ctx.lineTo(left + W, bottom);          // floor, back + right edge
+    ctx.moveTo(left + dx, bottom - dy); ctx.lineTo(left + dx, bottom - dy - SMAX * amp);         // back-left post
+    ctx.moveTo(left + dx + W, bottom - dy); ctx.lineTo(left + dx + W, bottom - dy - SMAX * amp); // back-right post
+    for (s = 0.2; s <= SMAX + 0.01; s += 0.2) {
+      ctx.moveTo(left, bottom - s * amp); ctx.lineTo(left + dx, bottom - dy - s * amp);          // left wall
+      ctx.lineTo(left + dx + W, bottom - dy - s * amp);                                          // back wall
+    }
+    ctx.stroke();
+
+    ctx.lineWidth = 1.2;
+    for (var j = NT - 1; j >= 0; j--) {                   // back to front
+      var u = j / (NT - 1), x0 = left + u * dx, y0 = bottom - u * dy, min = [0, 1e9];
+      ctx.beginPath();
+      for (var i = 0; i < NK; i++) {
+        var k = -1 + 2 * i / (NK - 1), x = x0 + i / (NK - 1) * W, y = y0 - vol(k, u) * amp;
+        if (y0 - y < min[1]) min = [x, y0 - y, y];
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.lineTo(x0 + W, y0 + 2); ctx.lineTo(x0, y0 + 2);  // close down to the baseline
+      ctx.fillStyle = BG;
+      ctx.fill();                                         // hide the curves behind
+      ctx.beginPath();                                    // then the curve itself on top
+      for (i = 0; i < NK; i++) {
+        x = x0 + i / (NK - 1) * W; y = y0 - vol(-1 + 2 * i / (NK - 1), u) * amp;
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.strokeStyle = "rgba(" + INK + ", " + (0.75 - 0.6 * u) + ")";
+      ctx.stroke();
+      ctx.fillStyle = "rgba(" + ACCENT + ", " + (0.95 - 0.7 * u) + ")";
+      ctx.fillRect(min[0] - 1.5, min[2] - 1.5, 3, 3);     // lowest vol on this curve
+    }
+
+    // Axes in front of the surface, with ticks and labels.
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(" + INK + ", 0.5)";
+    ctx.fillStyle = "rgba(" + INK + ", 0.5)";
+    ctx.beginPath();
+    ctx.moveTo(left, bottom - SMAX * amp); ctx.lineTo(left, bottom);               // σ axis
+    ctx.lineTo(left + W, bottom);                                                  // K axis
+    ctx.lineTo(left + W + dx, bottom - dy);                                        // T axis
+    ctx.textBaseline = "middle"; ctx.textAlign = "right";
+    for (s = 0.2; s <= SMAX + 0.01; s += 0.2) {                                    // σ ticks
+      ctx.moveTo(left - 5, bottom - s * amp); ctx.lineTo(left, bottom - s * amp);
+      ctx.fillText(Math.round(s * 100) + "%", left - 9, bottom - s * amp);
+    }
+    ctx.fillText("σ", left - 9, bottom - SMAX * amp - 16);
+    ctx.textAlign = "center";
+    for (q = 0; q <= 4; q++) {                                                     // K ticks (% of spot)
+      ctx.moveTo(left + q / 4 * W, bottom); ctx.lineTo(left + q / 4 * W, bottom + 5);
+      ctx.fillText(80 + q * 10, left + q / 4 * W, bottom + 16);
+    }
+    ctx.textAlign = "left";
+    ["1M", "6M", "1Y", "2Y"].forEach(function (label, n) {                         // T ticks
+      var tx = left + W + n / 3 * dx, ty = bottom - n / 3 * dy;
+      ctx.moveTo(tx, ty); ctx.lineTo(tx + 5, ty + 2);
+      ctx.fillText(label, tx + 10, ty + 5);
+    });
+    ctx.stroke();
+    ctx.fillText("T", left + W + dx + 12, bottom - dy - 10);
+    ctx.fillText("K  (% spot)      skew " + skew.toFixed(2), left, bottom + 38);
+    ctx.textBaseline = "alphabetic";
+  }
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!onScreen) { last = 0; return; }           // off screen, or hidden on phones
+    var dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now; clock += dt;
+    if (!mouse) target.skew = 0.15 + Math.sin(clock / 5) * 0.15;
+    skew += (target.skew - skew) * 0.06;
+    tilt += (target.tilt - tilt) * 0.06;
+    draw();
+  }
+
+  section.addEventListener("pointermove", function (e) {
+    var r = section.getBoundingClientRect();
+    mouse = true;
+    target.skew = -0.35 + 0.7 * (e.clientX - r.left) / r.width;
+    target.tilt = 0.18 + 0.24 * (e.clientY - r.top) / r.height;
+  });
+  section.addEventListener("pointerleave", function () { mouse = false; target.tilt = 0.3; });
+  new IntersectionObserver(function (e) { onScreen = e[0].isIntersecting; }).observe(box);
+  window.addEventListener("resize", resize);
+  resize();
+  if (!still) requestAnimationFrame(frame);
+})();
