@@ -26,7 +26,8 @@
   --bg-elev: #0d0f15;         /* elevated surfaces */
   --text: #e9ebf1;            /* main text */
   --text-muted: #878c9c;      /* secondary text, labels */
-  --accent: #5b5bf0;          /* indigo accent */
+  --accent: #5b5bf0;          /* indigo accent (buttons, borders, fills) */
+  --accent-text: #7575f5;     /* lighter indigo for text: 5.3:1 on --bg (--accent is only 4.0:1) */
   --accent-soft: rgba(91, 91, 240, 0.14);
   --rule: rgba(255, 255, 255, 0.09);   /* hairlines */
 
@@ -74,7 +75,7 @@ img {
 }
 
 a {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -148,11 +149,11 @@ a:focus-visible {
 .nav-brand:hover,
 .nav-brand:focus-visible {
   text-decoration: none;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .nav-brand-cursor {
-  color: var(--accent);
+  color: var(--accent-text);
   animation: cursor-blink 1.2s steps(1) infinite;
 }
 
@@ -462,7 +463,7 @@ a:focus-visible {
   font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
   margin-bottom: 20px;
 }
 
@@ -532,7 +533,7 @@ a:focus-visible {
 .card-index {
   font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .card-heading {
@@ -704,7 +705,7 @@ a:focus-visible {
   flex: 0 0 130px;
   font-family: var(--font-mono);
   font-size: 14px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .event-title {
@@ -769,15 +770,23 @@ a:focus-visible {
   .contact-visual { display: none; }
 }
 
+/* Social links: same look, but a 44px-tall tap area */
+.contact-socials a,
+.footer-socials a {
+  display: inline-block;
+  padding: 13px 0;
+  margin: -13px 0;
+}
+
 .contact-email a {
   font-family: var(--font-mono);
-  font-size: 26px;
+  font-size: clamp(17px, 5.6vw, 26px);   /* 24 characters must fit a phone screen */
   font-weight: 500;
   color: var(--text);
 }
 
 .contact-email a:hover {
-  color: var(--accent);
+  color: var(--accent-text);
   text-decoration: none;
 }
 
@@ -948,6 +957,13 @@ a:focus-visible {
 
   .lang-toggle {
     padding: 6px 11px;
+    position: relative;
+  }
+  /* Invisible extension so the small pill has a 46px-tall tap area */
+  .lang-toggle::after {
+    content: "";
+    position: absolute;
+    inset: -8px -2px;
   }
 
   .nav-toggle {
@@ -1091,7 +1107,7 @@ a:focus-visible {
   content: "→";
   position: absolute;
   left: 0;
-  color: var(--accent);
+  color: var(--accent-text);
   font-family: var(--font-mono);
 }
 
@@ -1109,7 +1125,7 @@ a:focus-visible {
 }
 
 .applications-checklist-format a {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1124,7 +1140,7 @@ a:focus-visible {
   font-family: var(--font-mono);
   font-size: 14px;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-text);
   background: none;
   border: none;
   padding: 0;
