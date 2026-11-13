@@ -770,7 +770,7 @@ function renderCalendar(lang) {
   var REST = "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1s&limit=";
   var STREAM = "wss://data-stream.binance.vision/ws/btcusdt@kline_1s";
   var INK = "233, 235, 241";
-  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+  var FONT = "11px 'Instrument Sans', 'Segoe UI', sans-serif";
 
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
@@ -947,17 +947,19 @@ function renderCalendar(lang) {
 })();
 
 /* Hero style "montecarlo" — Monte Carlo price paths.
-   Random walks fan out from the left; where they end builds a histogram on the
-   right that converges to the bell curve (dashed). Mouse x = volatility σ,
+   Price history as glowing candles on the left, a "now" marker, then random
+   walks fanning out to the right; where they end builds a dotted histogram under the expected bell curve (dashed). Mouse x = volatility σ,
    mouse y = drift μ. Monochrome. */
 /* box = element the canvas fills, pointerEl = element that listens for the
    mouse, before = optional child of box to insert the canvas in front of. */
 function monteCarlo(box, pointerEl, before) {
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var STEP = 6, GROW = 650, LIFE = 4, EVERY = 0.12, MAX = 60, BIN = 16;
-  var INK = "233, 235, 241";
-  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+  // Layout, left to right: price history as glowing candles -> bright "now"
+  // marker -> fan of simulated future paths -> dotted histogram of where they end.
+  var STEP = 6, GROW = 190, LIFE = 9, EVERY = 0.07, MAX = 260, BIN = 9;   // GROW = px/s a path draws at
+  var INK = "233, 235, 241", LAV = "200, 188, 255", VIOLET = "118, 78, 255";
+  var FONT = "11px 'Instrument Sans', 'Segoe UI', sans-serif";
   var XMAS_DOTS = document.documentElement.classList.contains("xmas") &&
     ["255, 60, 90", "50, 230, 130", "255, 200, 60", "60, 200, 255"];   // red, green, gold, ice
 
@@ -966,23 +968,45 @@ function monteCarlo(box, pointerEl, before) {
   var ctx = canvas.getContext("2d");
   box.insertBefore(canvas, before || null);
 
-  var w = 0, h = 0, dpr = 1, paths = [], bins = [], last = 0, clock = 0, timer = 0;
+  var w = 0, h = 0, dpr = 1, paths = [], bins = [], candles = [], stars = [], last = 0, clock = 0, timer = 0;
   var sigma = 0.25, mu = 0.05, target = { s: 0.25, m: 0.05 }, mouse = null;
-  var x0, y0, x1, span;
+  var x0, y0, x1, span, cw;
 
   function gauss() {
     return Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(6.2832 * Math.random());
   }
 
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (box.clientWidth === w && box.clientHeight === h) return;   // phone URL bar show/hide
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = box.clientWidth; h = box.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    x0 = w * 0.06; x1 = w * 0.84; y0 = h * 0.55; span = h * 0.55;
+    var phone = w < 700;                       // phones: the whole chart sits below the buttons
+    x0 = w * (phone ? 0.24 : 0.3); x1 = w * (phone ? 0.87 : 0.9);   // the fan gets the space between x0 and x1
+    // Desktop: the short history ends just left of the title; the fan runs behind it to the right.
+    var title = !phone && box.querySelector(".hero-title");
+    if (title) x0 = Math.max(w * 0.16, title.getBoundingClientRect().left - box.getBoundingClientRect().left - 40);
+    y0 = h * (phone ? 0.83 : 0.46); span = h * (phone ? 0.2 : 0.38);
     bins = new Array(Math.ceil(h / BIN)).fill(0);
     paths = [];
+
+    // Price history: walked backwards from the "now" point, so the last close lands on it.
+    cw = phone ? 7 : 11;
+    candles = [];
+    var c = y0, lim = h * (phone ? 0.07 : 0.16);
+    for (var x = x0 - cw; x > -cw; x -= cw) {
+      var o = c + gauss() * h * (phone ? 0.012 : 0.02) + h * 0.0015;   // earlier prices sit a little lower
+      o = Math.max(y0 - lim, Math.min(y0 + lim * 1.3, o));
+      candles.push({ x: x, o: o, c: c,
+                     hi: Math.min(o, c) - Math.random() * h * 0.016,
+                     lo: Math.max(o, c) + Math.random() * h * 0.016 });
+      c = o;
+    }
+    stars = [];
+    for (var s = 0; s < Math.round(w * h / 22000); s++) {
+      stars.push([Math.random() * w, Math.random() * h, Math.random() * 6.28]);
+    }
   }
 
   function spawn() {
@@ -1012,12 +1036,49 @@ function monteCarlo(box, pointerEl, before) {
     });
   }
 
+  function glow(x, y, r, stops) {
+    var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    stops.forEach(function (s) { g.addColorStop(s[0], s[1]); });
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
   function draw() {
     ctx.clearRect(0, 0, w, h);
+
+    // Violet haze around the "now" point, and a few twinkling stars.
+    glow(x0, y0, Math.max(w, h) * 0.6, [[0, "rgba(" + VIOLET + ", 0.16)"], [1, "rgba(" + VIOLET + ", 0)"]]);
+    stars.forEach(function (s) {
+      ctx.fillStyle = "rgba(" + LAV + ", " + (0.12 + 0.22 * (0.5 + 0.5 * Math.sin(clock * 1.3 + s[2]))) + ")";
+      ctx.fillRect(s[0], s[1], 1.5, 1.5);
+    });
+
+    // History: soft echoes of the price line, then the candles themselves.
     ctx.lineWidth = 1;
+    for (var k = 1; k <= 4; k++) {
+      ctx.strokeStyle = "rgba(" + LAV + ", " + 0.16 / k + ")";
+      ctx.beginPath();
+      candles.forEach(function (c, i) {
+        var y = c.c + Math.sin(i * 0.9 + clock * 0.35 + k * 1.7) * k * 5;
+        i ? ctx.lineTo(c.x + cw / 2, y) : ctx.moveTo(c.x + cw / 2, y);
+      });
+      ctx.stroke();
+    }
+    ctx.shadowColor = "rgba(" + LAV + ", 0.9)"; ctx.shadowBlur = 8;
+    candles.forEach(function (c) {
+      var top = Math.min(c.o, c.c), bw = cw - 3;
+      ctx.fillStyle = "rgba(" + INK + ", 0.4)";
+      ctx.fillRect(c.x + cw / 2 - 0.5, c.hi, 1, c.lo - c.hi);                    // wick
+      ctx.fillStyle = "rgba(" + INK + ", " + (c.c <= c.o ? 0.85 : 0.55) + ")";   // up brighter than down
+      ctx.fillRect(c.x + 1.5, top, bw, Math.max(2, Math.abs(c.c - c.o)));        // body
+    });
+    ctx.shadowBlur = 0;
+
+    // Future: the fan of simulated paths.
+    ctx.lineWidth = 0.8;
     paths.forEach(function (p) {
-      var a = 0.34 * (1 - p.age / LIFE);
-      ctx.strokeStyle = "rgba(" + INK + ", " + a + ")";
+      var a = 0.3 * (1 - p.age / LIFE);
+      ctx.strokeStyle = "rgba(" + LAV + ", " + a + ")";
       ctx.beginPath();
       ctx.moveTo(x0, p.pts[0]);
       for (var i = 1; i <= p.len; i++) ctx.lineTo(x0 + i * STEP, p.pts[i]);
@@ -1030,49 +1091,63 @@ function monteCarlo(box, pointerEl, before) {
       }
     });
 
-    // Fade the paths behind the title and tagline so the text stays readable.
-    var rx = Math.min(w * 0.48, 460), ry = h * 0.3;
+    // Fade everything behind the title and tagline so the text stays readable.
+    var rx = Math.min(w * 0.36, 420), ry = h * 0.27;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
     ctx.translate(w / 2, h / 2); ctx.scale(1, ry / rx);
-    var fade = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
-    fade.addColorStop(0, "rgba(0, 0, 0, 0.75)");
-    fade.addColorStop(0.6, "rgba(0, 0, 0, 0.6)");
-    fade.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = fade;
-    ctx.fillRect(-rx, -rx, rx * 2, rx * 2);
+    glow(0, 0, rx, [[0, "rgba(0, 0, 0, 0.8)"], [0.6, "rgba(0, 0, 0, 0.62)"], [1, "rgba(0, 0, 0, 0)"]]);
     ctx.restore();
 
-    // Histogram of end points.
-    // Bars and the theoretical normal density share one scale.
+    // The "now" point: a small marker where history ends and the simulation starts.
+    ctx.fillStyle = "rgba(" + INK + ", 0.9)";
+    ctx.fillRect(x0 - 2.5, y0 - 2.5, 5, 5);
+
+    // Histogram of end points: rows of dots behind a thin divider.
+    // The dots and the expected (normal) distribution share one scale.
     var sdPx = sigma * span, mean = y0 - mu * span, total = 0;
     for (var t = 0; t < bins.length; t++) total += bins[t];
-    var peak = total * BIN / (sdPx * 2.5066);                 // expected count in the top bin
-    var hx = w * 0.865, hw = w * 0.11;
-    var max = Math.max.apply(null, bins.concat(peak, 3));
-    ctx.fillStyle = "rgba(" + INK + ", 0.34)";
+    var peak = total * BIN / (sdPx * 2.5066);                 // expected count in the tallest row
+    var hx = x1 + 12, hw = w - hx - 10, max = Math.max.apply(null, bins.concat(peak, 4));
+    ctx.fillStyle = "rgba(" + LAV + ", 0.18)";
+    var yTop = Math.max(0, mean - sdPx * 3.4), yBot = Math.min(h, mean + sdPx * 3.4);   // only where the curve lives
+    ctx.fillRect(hx - 6, yTop, 1, yBot - yTop);
+    ctx.fillStyle = "rgba(" + INK + ", 0.55)";
     bins.forEach(function (c, k) {
-      if (c > 0.05) ctx.fillRect(hx, k * BIN + 1, c / max * hw, BIN - 2);
+      if (c < 0.05) return;
+      for (var d = 0, n = Math.round(c / max * hw / 4); d < n; d++) ctx.fillRect(hx + d * 4, k * BIN + 3, 2, 2);
     });
+    // Expected distribution of the end points: dashed bell curve over the dots.
     var scale = peak / max * hw;
+    ctx.lineWidth = 1;
     ctx.setLineDash([3, 4]);
-    ctx.strokeStyle = "rgba(" + INK + ", 0.65)";
+    ctx.strokeStyle = "rgba(" + INK + ", 0.7)";
     ctx.beginPath();
-    for (var yy = 0; yy <= h; yy += 4) {
-      var z = (yy - mean) / sdPx, x = hx + Math.min(hw * 1.2, Math.exp(-z * z / 2) * scale);
-      yy ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
+    for (var yy = yTop; yy <= yBot; yy += 4) {
+      var z = (yy - mean) / sdPx, bx = hx + Math.exp(-z * z / 2) * scale;
+      yy > yTop ? ctx.lineTo(bx, yy) : ctx.moveTo(bx, yy);
     }
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Origin marker + parameter readout.
-    ctx.fillStyle = "rgba(" + INK + ", 0.8)";
-    ctx.fillRect(x0 - 2, y0 - 2, 4, 4);
-    ctx.font = FONT;
-    ctx.fillStyle = "rgba(" + INK + ", " + (mouse ? 0.9 : 0.6) + ")";
-    var txt = "σ " + sigma.toFixed(2) + "   μ " + (mu >= 0 ? "+" : "") + mu.toFixed(2);
-    if (mouse) ctx.fillText(txt, mouse.x + 14, mouse.y - 10);
-    else ctx.fillText(txt, x0, y0 + span * 0.5 + 18);
+    // Soft edges: fade everything out before it reaches the menu bar at the top
+    // (and the bottom edge), so wide-ranging paths never look cut off.
+    var topFade = ctx.createLinearGradient(0, 0, 0, 190);
+    topFade.addColorStop(0, "rgba(0, 0, 0, 1)"); topFade.addColorStop(0.45, "rgba(0, 0, 0, 1)");
+    topFade.addColorStop(1, "rgba(0, 0, 0, 0)");
+    var bottomFade = ctx.createLinearGradient(0, h - 70, 0, h);
+    bottomFade.addColorStop(0, "rgba(0, 0, 0, 0)"); bottomFade.addColorStop(1, "rgba(0, 0, 0, 1)");
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = topFade; ctx.fillRect(0, 0, w, 190);
+    ctx.fillStyle = bottomFade; ctx.fillRect(0, h - 70, w, 70);
+    ctx.globalCompositeOperation = "source-over";
+
+    // Parameter readout next to the mouse.
+    if (mouse) {
+      ctx.font = FONT;
+      ctx.fillStyle = "rgba(" + INK + ", 0.9)";
+      ctx.fillText("σ " + sigma.toFixed(2) + "   μ " + (mu >= 0 ? "+" : "") + mu.toFixed(2), mouse.x + 14, mouse.y - 10);
+    }
   }
 
   var onScreen = true;   // skip work while the box is scrolled away
@@ -1102,7 +1177,7 @@ function monteCarlo(box, pointerEl, before) {
   resize();
 
   if (still) {   // one static frame of finished paths
-    for (var i = 0; i < 60; i++) {
+    for (var i = 0; i < MAX; i++) {
       var p = spawn(), end = p.pts[p.pts.length - 1];
       p.len = p.pts.length - 1; p.done = true; p.age = LIFE / 2;
       if (end >= 0 && end < h) bins[Math.floor(end / BIN)] += 1;
@@ -1281,7 +1356,7 @@ function monteCarlo(box, pointerEl, before) {
 
   var NT = 24, NK = 70;                    // maturities (curves) x strikes (points)
   var INK = "233, 235, 241", ACCENT = "120, 120, 255", BG = "#07080c";   // BG = --bg
-  var FONT = "11px 'JetBrains Mono', Consolas, monospace";
+  var FONT = "11px 'Instrument Sans', 'Segoe UI', sans-serif";
 
   var canvas = document.createElement("canvas");
   canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%";
