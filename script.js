@@ -71,7 +71,8 @@ var I18N_EN = {
   "hero.tagline": "Where mathematics meets the markets.",
   "hero.ctaJoin": "Join us",
   "hero.ctaEvents": "Upcoming events",
-  "hero.nov17": "17 November · International Students' Day",
+  "hero.nov17quote": "“Who, if not us? When, if not now?”",
+  "hero.nov17": "Students, November 1989 · International Students' Day",
   "hero.xmas": "Merry Christmas",
   "hero.newyear": "Happy New Year!",
 
@@ -1215,29 +1216,37 @@ function monteCarlo(box, pointerEl, before) {
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     keys = [];
-    for (var x = 8; x < w; x += 9 + Math.random() * 14) {
-      keys.push({ x: x, y: h * (0.8 + Math.random() * 0.14), s: 6 + Math.random() * 7,
-                  f: 5 + Math.random() * 6, p: Math.random() * 6.28, a: 0.2 + Math.random() * 0.5 });
-    }
+    // Two layers: small dim keys at the back, then larger bright ones in front.
+    [[0.78, 7, 0.16], [0.84, 11, 0.5]].forEach(function (layer) {
+      for (var x = 10; x < w; x += layer[1] * (1.6 + Math.random() * 1.6)) {
+        keys.push({ x: x, y: h * (layer[0] + Math.random() * 0.07), s: layer[1] * (0.8 + Math.random() * 0.5),
+                    f: 5 + Math.random() * 6, p: Math.random() * 6.28, a: layer[2] * (0.7 + Math.random() * 0.6),
+                    flip: Math.random() < 0.5 ? -1 : 1 });
+      }
+    });
     draw(0);
   }
 
-  // One key hanging from the top of its ring, swinging around that point.
+  // A solid key silhouette (s = size unit; the key is about 3.4 s long): round
+  // bow with a hole, shaft, two-tooth bit. It hangs from the top of the bow
+  // and swings around that point.
   function draw(t) {
     ctx.clearRect(0, 0, w, h);
-    ctx.lineWidth = 1.5; ctx.lineCap = "round";
     keys.forEach(function (k) {
       var s = k.s;
       ctx.save();
       ctx.translate(k.x, k.y);
-      ctx.rotate(Math.sin(t * k.f + k.p) * 0.45);
-      ctx.strokeStyle = "rgba(233, 235, 241, " + k.a + ")";
+      ctx.rotate(Math.sin(t * k.f + k.p) * 0.4);
+      ctx.scale(k.flip, 1);                                           // teeth left or right
+      ctx.fillStyle = "rgba(233, 235, 241, " + k.a + ")";
       ctx.beginPath();
-      ctx.arc(0, s * 0.45, s * 0.45, 0, 6.2832);                      // ring
-      ctx.moveTo(0, s * 0.9); ctx.lineTo(0, s * 2.4);                 // shaft
-      ctx.lineTo(s * 0.5, s * 2.4);                                   // teeth
-      ctx.moveTo(0, s * 2); ctx.lineTo(s * 0.35, s * 2);
-      ctx.stroke();
+      ctx.arc(0, s * 0.7, s * 0.7, 0, 6.2832);                        // bow
+      ctx.moveTo(s * 0.32, s * 0.6);
+      ctx.arc(0, s * 0.6, s * 0.32, 0, 6.2832);                       // hole (cut out by evenodd)
+      ctx.rect(-s * 0.13, s * 1.3, s * 0.26, s * 2.1);                // shaft
+      ctx.rect(s * 0.13, s * 2.45, s * 0.42, s * 0.24);               // teeth
+      ctx.rect(s * 0.13, s * 2.95, s * 0.58, s * 0.3);
+      ctx.fill("evenodd");
       ctx.restore();
     });
   }
