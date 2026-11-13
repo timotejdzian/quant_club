@@ -560,11 +560,11 @@ function renderCalendar(lang) {
 
 /* ==========================================================================
    Hero background — one style per visit, stored on <html data-hero>:
-   always "montecarlo" (Christmas mode adds snow on top of it). Preview the
-   others with ?hero=lights|candles.
+   always "lights" (the grid tiles; Christmas mode recolours them and adds snow).
+   Preview the others with ?hero=montecarlo|candles.
    ========================================================================== */
 (function () {
-  var STYLES = ["montecarlo"];   // add "lights" / "candles" here to randomise again
+  var STYLES = ["lights"];   // the original grid with travelling lights; "montecarlo" / "candles" also exist
   var forced = (location.search.match(/[?&]hero=(lights|candles|montecarlo)\b/) || [])[1];
   document.documentElement.dataset.hero = forced || STYLES[Math.floor(Math.random() * STYLES.length)];
 })();
