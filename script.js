@@ -22,6 +22,12 @@ const ADMISSIONS_OPEN = new Date("2026-10-18T00:00:00+02:00");
    formulář neexistuje — tlačítko se v modálu objeví až po doplnění URL. */
 const ADMISSIONS_FORM_URL = "";
 
+/* Application terminal (Přihlášky): web-app URL of the Google Apps
+   Script in apps-script/Code.gs (ends with /exec). While this is empty the
+   terminal is hidden on the site; add ?terminal to the URL to try it in demo
+   mode, where nothing is sent. */
+const APPLY_ENDPOINT = "https://script.google.com/macros/s/AKfycby284eOSocbIgx-yx1cnH98qcY8C4CYauXb8V85etaqTb7m7uvmTqKSr_tyCk5UEQ/exec";
+
 
 /* ==========================================================================
    1. EVENTS — EDIT HERE
@@ -130,7 +136,7 @@ var I18N_EN = {
 
   "applications.eyebrow": "Applications",
   "applications.heading": "Applications",
-  "applications.lede": "We accept applications on a rolling basis throughout the whole semester. If you want to apply, send an email with your CV to <a href=\"mailto:info@praguequantclub.org\">info@praguequantclub.org</a>.",
+  "applications.lede": "We accept applications on a rolling basis throughout the whole semester. Fill in your application right here in the terminal and upload your CV.",
   "applications.formLabel": "Submit your application via the form:",
   "applications.formButton": "Fill in the application",
   "applications.checklistHeading": "What to prepare",
@@ -1398,4 +1404,204 @@ function monteCarlo(box, pointerEl, before) {
   window.addEventListener("resize", resize);
   resize();
   if (!still) requestAnimationFrame(frame);
+})();
+
+
+/* ==========================================================================
+   APPLICATION TERMINAL — how people apply.
+   A bash-like prompt in the Applications section asks for name, school,
+   e-mail, motivation, CV (PDF) and consent to data processing, then POSTs it
+   all as JSON to APPLY_ENDPOINT (Google Apps Script, see apps-script/Code.gs).
+   Everything the applicant types is printed with textContent, never as HTML.
+   ========================================================================== */
+(function () {
+  var wrap = document.getElementById("apply-terminal-wrap");
+  var body = document.getElementById("terminal-body");
+  var log = document.getElementById("terminal-log");
+  var form = document.getElementById("terminal-form");
+  var input = document.getElementById("terminal-input");
+  var label = document.getElementById("terminal-prompt");
+  var fileBtn = document.getElementById("terminal-file-btn");
+  var fileInput = document.getElementById("terminal-file");
+  var trap = document.getElementById("terminal-hp");
+  if (!wrap || !form) return;
+
+  var demo = !APPLY_ENDPOINT;
+  if (demo && !/[?&]terminal\b/.test(location.search)) return;   // not configured: stay hidden
+  wrap.hidden = false;
+
+  var MAX_CV = 5 * 1024 * 1024;   // keep in sync with apps-script/Code.gs
+  var CONTACT = "info@praguequantclub.org";
+  var TEXT = {
+    cs: {
+      intro: "Prague Quant Club · přihláška. Odpověz na každou otázku a potvrď klávesou Enter.",
+      q_name: "jméno a příjmení", q_school: "škola a obor", q_email: "e-mail",
+      q_motivation: "proč se chceš přidat (pár vět)", q_cv: "životopis (PDF, max 5 MB)",
+      q_consent: "souhlasíš? [a/n]", q_confirm: "odeslat přihlášku? [a/n]",
+      consentText: "Souhlasím se zpracováním svých osobních údajů (jméno, škola, e-mail, motivace, " +
+        "životopis) klubem Prague Quant Club pro účely přijímacího řízení. Souhlas lze kdykoli " +
+        "odvolat na " + CONTACT + ".",
+      choose: "[ vybrat PDF ]", summary: "--- shrnutí ---", restart: "Dobře, začínáme znovu.",
+      empty: "✗ Tohle pole nemůže být prázdné.",
+      badEmail: "✗ To nevypadá jako e-mailová adresa.",
+      short: "✗ Napiš prosím aspoň pár vět (minimálně 20 znaků).",
+      notPdf: "✗ Životopis musí být soubor PDF.", tooBig: "✗ Soubor je větší než 5 MB.",
+      yn: "✗ Odpověz a (ano) nebo n (ne).",
+      needConsent: "✗ Bez souhlasu přihlášku přijmout nemůžeme.",
+      sending: "Odesílám…", sent: "✔ Přihláška odeslána. Ozveme se ti na {email}.",
+      failed: "✗ Odeslání se nepodařilo. Zkus to znovu; kdyby to nešlo, napiš nám na " + CONTACT + ".",
+      demo: "✔ Demo režim: nic se neodeslalo (v script.js chybí APPLY_ENDPOINT)."
+    },
+    en: {
+      intro: "Prague Quant Club · application. Answer each question and press Enter.",
+      q_name: "full name", q_school: "school and programme", q_email: "e-mail",
+      q_motivation: "why do you want to join (a few sentences)", q_cv: "CV (PDF, max 5 MB)",
+      q_consent: "do you agree? [y/n]", q_confirm: "submit the application? [y/n]",
+      consentText: "I consent to Prague Quant Club processing my personal data (name, school, e-mail, " +
+        "motivation, CV) for the purposes of the admission process. I can withdraw this consent " +
+        "at any time at " + CONTACT + ".",
+      choose: "[ choose PDF ]", summary: "--- summary ---", restart: "OK, starting over.",
+      empty: "✗ This field cannot be empty.",
+      badEmail: "✗ That does not look like an e-mail address.",
+      short: "✗ Please write at least a few sentences (20 characters minimum).",
+      notPdf: "✗ The CV must be a PDF file.", tooBig: "✗ The file is larger than 5 MB.",
+      yn: "✗ Answer y (yes) or n (no).",
+      needConsent: "✗ We cannot accept an application without consent.",
+      sending: "Sending…", sent: "✔ Application sent. We will get back to you at {email}.",
+      failed: "✗ Sending failed. Try again; if it keeps failing, write to us at " + CONTACT + ".",
+      demo: "✔ Demo mode: nothing was sent (APPLY_ENDPOINT is missing in script.js)."
+    }
+  };
+  function t(key) { return TEXT[currentLang === "en" ? "en" : "cs"][key]; }
+
+  var STEPS = ["name", "school", "email", "motivation", "cv", "consent", "confirm"];
+  var data = {}, cv = null, step = 0, busy = false;
+
+  function print(text, cls) {
+    var p = document.createElement("p");
+    if (cls) p.className = cls;
+    p.textContent = text;
+    log.appendChild(p);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // Show the prompt for the current step.
+  function ask() {
+    var s = STEPS[step], isFile = s === "cv";
+    if (s === "consent") print(t("consentText"), "terminal-dim");
+    if (s === "confirm") {
+      print(t("summary"), "terminal-dim");
+      ["name", "school", "email", "motivation"].forEach(function (k) {
+        print("  " + t("q_" + k).split(" (")[0] + ": " + data[k], "terminal-dim");
+      });
+      print("  CV: " + cv.name, "terminal-dim");
+    }
+    label.textContent = t("q_" + s) + " ›";
+    input.hidden = isFile; fileBtn.hidden = !isFile;
+    fileBtn.textContent = t("choose");
+    input.maxLength = s === "motivation" ? 1500 : 200;
+    input.inputMode = s === "email" ? "email" : "text";
+    input.autocomplete = { name: "name", email: "email" }[s] || "off";
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // Handle one typed answer; on a bad answer print why and stay on the step.
+  function answer(value) {
+    var s = STEPS[step], v = value.trim();
+    print(t("q_" + s) + " › " + v, "terminal-echo");
+    if (s === "consent" || s === "confirm") {
+      var yes = /^(a|ano|y|yes)$/i.test(v), no = /^(n|ne|no)$/i.test(v);
+      if (!yes && !no) return print(t("yn"), "terminal-err");
+      if (s === "consent" && no) return print(t("needConsent"), "terminal-err");
+      if (s === "confirm") {
+        if (yes) return send();
+        print(t("restart"), "terminal-dim");
+        return start();
+      }
+    } else {
+      if (!v) return print(t("empty"), "terminal-err");
+      if (s === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return print(t("badEmail"), "terminal-err");
+      if (s === "motivation" && v.length < 20) return print(t("short"), "terminal-err");
+      data[s] = v;
+    }
+    step++;
+    ask();
+  }
+
+  function start() {
+    data = {}; cv = null; step = 0;
+    print("$ ./apply.sh", "terminal-cmd");
+    print(t("intro"), "terminal-dim");
+    ask();
+  }
+
+  function finish() { form.hidden = true; }
+
+  function fail() {
+    busy = false;
+    print(t("failed"), "terminal-err");
+    form.hidden = false;
+    label.textContent = t("q_confirm") + " ›";   // still on the confirm step: "a" retries
+  }
+
+  function send() {
+    busy = true;
+    form.hidden = true;
+    print(t("sending"), "terminal-dim");
+    if (demo) { print(t("demo"), "terminal-ok"); return finish(); }
+
+    var reader = new FileReader();
+    reader.onerror = fail;
+    reader.onload = function () {
+      var payload = {
+        name: data.name, school: data.school, email: data.email, motivation: data.motivation,
+        consent: true, lang: currentLang, website: trap.value,
+        cv: { name: cv.name, type: cv.type, data: String(reader.result).split(",")[1] }
+      };
+      // text/plain keeps this a "simple" request, which Apps Script web apps accept cross-origin.
+      fetch(APPLY_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.error);
+          print(t("sent").replace("{email}", data.email), "terminal-ok");
+          finish();
+        })
+        .catch(fail);
+    };
+    reader.readAsDataURL(cv);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (busy || input.hidden) return;
+    var v = input.value;
+    input.value = "";
+    answer(v);
+  });
+
+  fileBtn.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () {
+    var f = fileInput.files[0];
+    fileInput.value = "";                       // so picking the same file again fires "change"
+    if (!f) return;
+    if (f.type !== "application/pdf") return print(t("notPdf"), "terminal-err");
+    if (f.size > MAX_CV) return print(t("tooBig"), "terminal-err");
+    cv = f;
+    print(t("q_cv") + " › " + f.name + " (" + Math.max(1, Math.round(f.size / 1024)) + " kB)", "terminal-echo");
+    step++;
+    ask();
+    input.focus();
+  });
+
+  // Clicking anywhere in the window puts the cursor on the prompt, like a real terminal.
+  body.addEventListener("click", function (e) {
+    if (e.target === fileBtn || window.getSelection().toString()) return;
+    if (!input.hidden && !form.hidden) input.focus({ preventScroll: true });
+  });
+
+  start();
 })();

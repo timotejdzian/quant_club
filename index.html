@@ -267,7 +267,29 @@
       <div class="container">
         <p class="eyebrow reveal" data-i18n="applications.eyebrow">Přihlášky</p>
         <h2 class="section-heading reveal" id="applications-heading" data-i18n="applications.heading">Přihlášky</h2>
-        <p class="section-lede reveal" data-i18n="applications.lede">Přihlášky přijímáme průběžně během celého semestru. Pokud se chceš přihlásit, pošli nám e-mail se svým životopisem na <a href="mailto:info@praguequantclub.org">info@praguequantclub.org</a>.</p>
+        <p class="section-lede reveal" data-i18n="applications.lede">Přihlášky přijímáme průběžně během celého semestru. Vyplň přihlášku přímo tady v terminálu a nahraj svůj životopis.</p>
+
+        <!-- Application terminal (script.js "APPLICATION TERMINAL").
+             Stays hidden until APPLY_ENDPOINT is set in script.js; ?terminal previews it. -->
+        <div class="apply-terminal-wrap reveal" id="apply-terminal-wrap" hidden>
+          <div class="terminal">
+            <div class="terminal-bar" aria-hidden="true">
+              <span></span><span></span><span></span>
+              <b>applicant@pqc: ~/apply</b>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+              <div id="terminal-log" role="log" aria-live="polite"></div>
+              <form class="terminal-line" id="terminal-form" novalidate>
+                <label class="terminal-prompt" id="terminal-prompt" for="terminal-input">$</label>
+                <input class="terminal-input" id="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button class="terminal-file-btn" id="terminal-file-btn" type="button" hidden>[ vybrat PDF ]</button>
+              </form>
+              <input type="file" id="terminal-file" accept="application/pdf" hidden>
+              <!-- Spam trap: people never see or fill this field -->
+              <input class="terminal-trap" id="terminal-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            </div>
+          </div>
+        </div>
 
         <!-- Rolling-admissions content, hidden while applications are closed.
              To reopen: remove `hidden` and set the lede back to "Přihlášky přijímáme průběžně během celého semestru." -->
