@@ -560,11 +560,11 @@ function renderCalendar(lang) {
 
 /* ==========================================================================
    Hero background — one style per visit, stored on <html data-hero>:
-   always "lights" (the grid tiles; Christmas mode recolours them and adds snow).
-   Preview the others with ?hero=montecarlo|candles.
+   always "montecarlo" (Christmas mode adds snow on top of it). Preview the
+   others with ?hero=lights|candles.
    ========================================================================== */
 (function () {
-  var STYLES = ["lights"];   // the original grid with travelling lights; "montecarlo" / "candles" also exist
+  var STYLES = ["montecarlo"];   // add "lights" / "candles" here to randomise again
   var forced = (location.search.match(/[?&]hero=(lights|candles|montecarlo)\b/) || [])[1];
   document.documentElement.dataset.hero = forced || STYLES[Math.floor(Math.random() * STYLES.length)];
 })();
@@ -949,7 +949,8 @@ function renderCalendar(lang) {
 /* Hero style "montecarlo" — Monte Carlo price paths.
    Price history as glowing candles on the left, a "now" marker, then random
    walks fanning out to the right; where they end builds a dotted histogram under the expected bell curve (dashed). Mouse x = volatility σ,
-   mouse y = drift μ. Monochrome. */
+   mouse y = drift μ: the fan and the bell curve aim at the height of the mouse,
+   and μ is exactly 0 when the mouse is level with the last price. No mouse: μ = 0. */
 /* box = element the canvas fills, pointerEl = element that listens for the
    mouse, before = optional child of box to insert the canvas in front of. */
 function monteCarlo(box, pointerEl, before) {
@@ -969,7 +970,7 @@ function monteCarlo(box, pointerEl, before) {
   box.insertBefore(canvas, before || null);
 
   var w = 0, h = 0, dpr = 1, paths = [], bins = [], candles = [], stars = [], last = 0, clock = 0, timer = 0;
-  var sigma = 0.25, mu = 0.05, target = { s: 0.25, m: 0.05 }, mouse = null;
+  var sigma = 0.25, mu = 0, target = { s: 0.25, m: 0 }, mouse = null;
   var x0, y0, x1, span, cw;
 
   function gauss() {
@@ -1146,7 +1147,7 @@ function monteCarlo(box, pointerEl, before) {
     if (mouse) {
       ctx.font = FONT;
       ctx.fillStyle = "rgba(" + INK + ", 0.9)";
-      ctx.fillText("σ " + sigma.toFixed(2) + "   μ " + (mu >= 0 ? "+" : "") + mu.toFixed(2), mouse.x + 14, mouse.y - 10);
+      ctx.fillText("σ " + sigma.toFixed(2) + "   μ " + (mu > 0.005 ? "+" : mu < -0.005 ? "−" : " ") + Math.abs(mu).toFixed(2), mouse.x + 14, mouse.y - 10);
     }
   }
 
@@ -1159,7 +1160,6 @@ function monteCarlo(box, pointerEl, before) {
     last = now; clock += dt;
     if (!mouse) {   // idle: let the parameters wander a little
       target.s = 0.25 + Math.sin(clock / 7) * 0.08;
-      target.m = Math.sin(clock / 11) * 0.12;
     }
     update(dt);
     draw();
@@ -1170,9 +1170,10 @@ function monteCarlo(box, pointerEl, before) {
     var r = box.getBoundingClientRect();
     mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
     target.s = Math.max(0.08, 0.08 + 0.45 * mouse.x / w);
-    target.m = 0.3 - 0.6 * mouse.y / h;
+    // Drift so that the mean end point sits at the mouse height: 0 at the level of the last price.
+    target.m = Math.max(-0.7, Math.min(0.7, (y0 - mouse.y) / span));
   });
-  pointerEl.addEventListener("pointerleave", function () { mouse = null; });
+  pointerEl.addEventListener("pointerleave", function () { mouse = null; target.m = 0; });
   window.addEventListener("resize", resize);
   resize();
 
@@ -1346,7 +1347,8 @@ function monteCarlo(box, pointerEl, before) {
 /* Contact section — implied volatility surface as a stack of smile curves
    (.contact-visual, the empty right half; hidden on narrow screens).
    One curve σ(K) per maturity T: steep, skewed smiles in front (short T)
-   flattening towards the back (long T). Each curve hides the ones behind it.
+   flattening towards the back (long T). Drawn like the Monte Carlo hero: thin
+   see-through lavender lines, violet haze, a few stars, white square markers.
    The skew sways slowly; mouse x sets the skew, mouse y the viewing tilt. */
 (function () {
   var section = document.getElementById("contact");
@@ -1355,7 +1357,7 @@ function monteCarlo(box, pointerEl, before) {
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var NT = 24, NK = 70;                    // maturities (curves) x strikes (points)
-  var INK = "233, 235, 241", ACCENT = "120, 120, 255", BG = "#07080c";   // BG = --bg
+  var INK = "233, 235, 241", LAV = "200, 188, 255", VIOLET = "118, 78, 255";   // same palette as the hero
   var FONT = "11px 'Instrument Sans', 'Segoe UI', sans-serif";
 
   var canvas = document.createElement("canvas");
@@ -1363,7 +1365,7 @@ function monteCarlo(box, pointerEl, before) {
   var ctx = canvas.getContext("2d");
   box.appendChild(canvas);
 
-  var w = 0, h = 0, last = 0, clock = 0, onScreen = false, mouse = false;
+  var w = 0, h = 0, last = 0, clock = 0, onScreen = false, mouse = false, stars = [];
   var skew = 0.15, tilt = 0.3, target = { skew: 0.15, tilt: 0.3 };
 
   function resize() {
@@ -1371,6 +1373,8 @@ function monteCarlo(box, pointerEl, before) {
     w = box.clientWidth; h = box.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    stars = [];
+    for (var n = 0; n < Math.round(w * h / 26000); n++) stars.push([Math.random() * w, Math.random() * h, Math.random() * 6.28]);
     if (still) draw();
   }
 
@@ -1386,12 +1390,32 @@ function monteCarlo(box, pointerEl, before) {
     var W = Math.min(w * 0.6, 440), amp = W * 0.42;       // curve width, height of σ = 1
     var dx = W * 0.3, dy = Math.min(h * tilt, 260);       // how far the back row is shifted
     var left = (w - W - dx) / 2, bottom = h * 0.5 + (dy + amp * 0.5) / 2;
-    var SMAX = 0.8, s, q;                                 // top of the σ axis
+    var SMAX = 0.8, s, q, i, j;                           // SMAX = top of the σ axis
     ctx.font = FONT; ctx.lineJoin = "round";
 
-    // Box behind the surface: floor outline, back wall and left wall with σ grid lines.
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(" + INK + ", 0.13)";
+    // Violet haze behind the surface and a few twinkling stars.
+    // It is an ellipse sized to end inside the canvas, so it fades to nothing
+    // before the canvas edges instead of being cut off in a visible straight line.
+    var cx = left + (W + dx) / 2, cy = bottom - dy / 2 - amp * 0.3;
+    var rx = Math.min(cx, w - cx), ry = Math.min(cy, h - cy);
+    ctx.save();
+    ctx.translate(cx, cy); ctx.scale(1, ry / rx);
+    var haze = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    haze.addColorStop(0, "rgba(" + VIOLET + ", 0.16)");
+    haze.addColorStop(0.6, "rgba(" + VIOLET + ", 0.06)");
+    haze.addColorStop(1, "rgba(" + VIOLET + ", 0)");
+    ctx.fillStyle = haze;
+    ctx.fillRect(-rx, -rx, rx * 2, rx * 2);
+    ctx.restore();
+    stars.forEach(function (st) {
+      ctx.fillStyle = "rgba(" + LAV + ", " + (0.12 + 0.22 * (0.5 + 0.5 * Math.sin(clock * 1.3 + st[2]))) + ")";
+      ctx.fillRect(st[0], st[1], 1.5, 1.5);
+    });
+
+    // Box behind the surface, drawn as rows of dots: floor outline, back and left wall σ grid.
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([1.5, 4]);
+    ctx.strokeStyle = "rgba(" + LAV + ", 0.32)";
     ctx.beginPath();
     ctx.moveTo(left, bottom); ctx.lineTo(left + dx, bottom - dy);                  // floor, left edge
     ctx.lineTo(left + dx + W, bottom - dy); ctx.lineTo(left + W, bottom);          // floor, back + right edge
@@ -1402,33 +1426,36 @@ function monteCarlo(box, pointerEl, before) {
       ctx.lineTo(left + dx + W, bottom - dy - s * amp);                                          // back wall
     }
     ctx.stroke();
+    ctx.setLineDash([]);
 
-    ctx.lineWidth = 1.2;
-    for (var j = NT - 1; j >= 0; j--) {                   // back to front
-      var u = j / (NT - 1), x0 = left + u * dx, y0 = bottom - u * dy, min = [0, 1e9];
+    // Smile curves, back to front. They are see-through, like the fan of paths in the hero;
+    // the nearest one is white with a soft glow.
+    for (j = NT - 1; j >= 0; j--) {
+      var u = j / (NT - 1), x0 = left + u * dx, y0 = bottom - u * dy, min = [0, 1e9, 0], ys = [];
       ctx.beginPath();
-      for (var i = 0; i < NK; i++) {
-        var k = -1 + 2 * i / (NK - 1), x = x0 + i / (NK - 1) * W, y = y0 - vol(k, u) * amp;
-        if (y0 - y < min[1]) min = [x, y0 - y, y];
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      }
-      ctx.lineTo(x0 + W, y0 + 2); ctx.lineTo(x0, y0 + 2);  // close down to the baseline
-      ctx.fillStyle = BG;
-      ctx.fill();                                         // hide the curves behind
-      ctx.beginPath();                                    // then the curve itself on top
       for (i = 0; i < NK; i++) {
-        x = x0 + i / (NK - 1) * W; y = y0 - vol(-1 + 2 * i / (NK - 1), u) * amp;
+        var v = vol(-1 + 2 * i / (NK - 1), u), x = x0 + i / (NK - 1) * W, y = y0 - v * amp;
+        if (v < min[1]) min = [x, v, y];
+        ys.push(y);
         i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
       }
-      ctx.strokeStyle = "rgba(" + INK + ", " + (0.75 - 0.6 * u) + ")";
+      var front = j === 0;
+      ctx.lineWidth = front ? 1.4 : 0.9;
+      ctx.strokeStyle = front ? "rgba(" + INK + ", 0.9)" : "rgba(" + LAV + ", " + (0.6 - 0.48 * u) + ")";
+      ctx.shadowColor = "rgba(" + LAV + ", 0.9)"; ctx.shadowBlur = front ? 10 : 0;
       ctx.stroke();
-      ctx.fillStyle = "rgba(" + ACCENT + ", " + (0.95 - 0.7 * u) + ")";
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(" + INK + ", " + (0.95 - 0.7 * u) + ")";
       ctx.fillRect(min[0] - 1.5, min[2] - 1.5, 3, 3);     // lowest vol on this curve
+      if (j % 4 === 0) {                                  // a bright head gliding along every 4th curve
+        var at = Math.floor(((clock * 0.12 + j * 0.13) % 1) * (NK - 1));
+        ctx.fillRect(x0 + at / (NK - 1) * W - 1.5, ys[at] - 1.5, 3, 3);
+      }
     }
 
     // Axes in front of the surface, with ticks and labels.
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(" + INK + ", 0.5)";
+    ctx.strokeStyle = "rgba(" + LAV + ", 0.55)";
     ctx.fillStyle = "rgba(" + INK + ", 0.5)";
     ctx.beginPath();
     ctx.moveTo(left, bottom - SMAX * amp); ctx.lineTo(left, bottom);               // σ axis

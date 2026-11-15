@@ -24,7 +24,12 @@
 
 var MAX_CV_BYTES = 5 * 1024 * 1024;   // keep in sync with MAX_CV in script.js
 var CV_FOLDER_NAME = "PQC applications - CVs";
-var HEADER = ["Received", "Name", "School", "E-mail", "Motivation", "CV", "Consent", "Language"];
+// Extra people who should get the notification e-mail, comma-separated, e.g.
+// "anna@example.com, petr@example.com". Fill this in ONLY in the Apps Script
+// editor, not in the website repository (the repository is public).
+// The account that owns the script always gets the e-mail as well.
+var NOTIFY = "";
+var HEADER =["Received", "Name", "School", "E-mail", "Motivation", "CV", "Consent", "Language"];
 
 function doPost(e) {
   try {
@@ -55,7 +60,7 @@ function doPost(e) {
                      file.getUrl(), "yes", d.lang === "en" ? "en" : "cs"]);
 
     MailApp.sendEmail({
-      to: Session.getEffectiveUser().getEmail(),
+      to: [Session.getEffectiveUser().getEmail(), NOTIFY].filter(String).join(","),
       replyTo: email,
       subject: "PQC application: " + name,
       body: "Name: " + name + "\nSchool: " + school + "\nE-mail: " + email +

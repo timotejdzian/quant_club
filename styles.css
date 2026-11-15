@@ -31,9 +31,11 @@
   --accent-soft: rgba(91, 91, 240, 0.14);
   --rule: rgba(255, 255, 255, 0.09);   /* hairlines */
 
-  --font-heading: "Space Grotesk", "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+  --font-heading: "Instrument Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-body: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* "mono" is the label style (menu, eyebrows, dates). It is Instrument Sans too;
+     only the application terminal still uses a real monospace (--font-terminal). */
+  --font-mono: "Instrument Sans", "Segoe UI", Helvetica, Arial, sans-serif;
   --font-terminal: "JetBrains Mono", "Cascadia Code", Consolas, "Courier New", monospace;
 
   --container: 1200px;
@@ -407,15 +409,19 @@ a:focus-visible {
   text-decoration: none;
 }
 
+/* Filled button: the same violet as the hero's haze (script.js VIOLET = #764eff),
+   fading to a deeper violet, with a soft glow in that colour. */
 .btn-filled {
   color: #ffffff;
-  background: var(--accent);
-  border: 1px solid var(--accent);
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, #764eff 0%, #5a3bd8 100%) border-box;
+  box-shadow: 0 0 26px rgba(118, 78, 255, 0.35);
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-filled:hover {
-  background: #4a4ad9;
-  border-color: #4a4ad9;
+  filter: brightness(1.12);
+  box-shadow: 0 0 34px rgba(118, 78, 255, 0.5);
 }
 
 .btn-outline {
@@ -741,35 +747,8 @@ a:focus-visible {
 #contact { position: relative; }
 #contact .container { position: relative; }   /* text stays above the canvas */
 .contact-visual { position: absolute; top: 0; bottom: 0; right: 0; width: 55%; }
-/* Original plain design for now: the volatility surface and the scattered
-   formulas are switched off. Delete this one rule to bring them back. */
-.contact-visual, .formula { display: none !important; }
-/* Decorative formulas scattered in the empty parts of sections: white, dimmed,
-   tilted. Position and tilt come from inline --x (from right), --y (from top)
-   and --r on each element. They sit behind the section text. */
 .section { position: relative; overflow-x: clip; }
 .section > .container { position: relative; }
-.formula,
-.contact-formula {
-  position: absolute;
-  right: var(--x, 8%);
-  top: var(--y, auto);
-  font-family: var(--font-body);
-  font-style: italic;
-  font-size: 20px;
-  line-height: 1.9;
-  white-space: nowrap;
-  color: var(--text);
-  opacity: 0.2;
-  transform: rotate(var(--r, -6deg));
-  pointer-events: none;
-}
-.formula sub, .formula sup,
-.contact-formula sub, .contact-formula sup { font-size: 0.65em; line-height: 0; }
-.contact-formula { right: 9%; bottom: 7%; font-size: 21px; opacity: 0.28; transform-origin: right bottom; --r: -7deg; }
-@media (max-width: 1100px) {
-  .formula { display: none; }
-}
 @media (max-width: 900px) {
   .contact-visual { display: none; }
 }
