@@ -349,6 +349,13 @@ a:focus-visible {
   text-shadow: none;
 }
 .newyear .hero-greeting--xmas { display: none; }
+/* 17 November on phones: the keys take the strip at the bottom of the hero where
+   the Monte Carlo chart normally sits, so the chart is hidden for that day.
+   ponytail: the hidden chart keeps animating; pause it in script.js if that matters. */
+@media (max-width: 699px) {
+  .nov17 .mc-canvas { display: none; }
+}
+
 /* 17 November: quote + attribution centred at the top of the hero */
 .hero-nov17 { display: none; position: absolute; top: 112px; left: 0; right: 0; padding: 0 24px; }
 .nov17 .hero-nov17 { display: block; }

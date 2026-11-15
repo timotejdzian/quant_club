@@ -965,6 +965,7 @@ function monteCarlo(box, pointerEl, before) {
     ["255, 60, 90", "50, 230, 130", "255, 200, 60", "60, 200, 255"];   // red, green, gold, ice
 
   var canvas = document.createElement("canvas");
+  canvas.className = "mc-canvas";   // styles.css hides it on phones on 17 November (keys go there)
   canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
   var ctx = canvas.getContext("2d");
   box.insertBefore(canvas, before || null);
@@ -1054,26 +1055,23 @@ function monteCarlo(box, pointerEl, before) {
       ctx.fillRect(s[0], s[1], 1.5, 1.5);
     });
 
-    // History: soft echoes of the price line, then the candles themselves.
+    // History: one faint echo of the price line, then the candles themselves.
+    // No glow, and every edge sits on a whole pixel, so the candles stay sharp.
     ctx.lineWidth = 1;
-    for (var k = 1; k <= 4; k++) {
-      ctx.strokeStyle = "rgba(" + LAV + ", " + 0.16 / k + ")";
-      ctx.beginPath();
-      candles.forEach(function (c, i) {
-        var y = c.c + Math.sin(i * 0.9 + clock * 0.35 + k * 1.7) * k * 5;
-        i ? ctx.lineTo(c.x + cw / 2, y) : ctx.moveTo(c.x + cw / 2, y);
-      });
-      ctx.stroke();
-    }
-    ctx.shadowColor = "rgba(" + LAV + ", 0.9)"; ctx.shadowBlur = 8;
-    candles.forEach(function (c) {
-      var top = Math.min(c.o, c.c), bw = cw - 3;
-      ctx.fillStyle = "rgba(" + INK + ", 0.4)";
-      ctx.fillRect(c.x + cw / 2 - 0.5, c.hi, 1, c.lo - c.hi);                    // wick
-      ctx.fillStyle = "rgba(" + INK + ", " + (c.c <= c.o ? 0.85 : 0.55) + ")";   // up brighter than down
-      ctx.fillRect(c.x + 1.5, top, bw, Math.max(2, Math.abs(c.c - c.o)));        // body
+    ctx.strokeStyle = "rgba(" + LAV + ", 0.1)";
+    ctx.beginPath();
+    candles.forEach(function (c, i) {
+      var y = c.c + Math.sin(i * 0.9 + clock * 0.35) * 5;
+      i ? ctx.lineTo(c.x + cw / 2, y) : ctx.moveTo(c.x + cw / 2, y);
     });
-    ctx.shadowBlur = 0;
+    ctx.stroke();
+    candles.forEach(function (c) {
+      var x = Math.round(c.x), mid = x + Math.floor(cw / 2), top = Math.round(Math.min(c.o, c.c));
+      ctx.fillStyle = "rgba(" + INK + ", 0.32)";
+      ctx.fillRect(mid, Math.round(c.hi), 1, Math.round(c.lo - c.hi));                 // wick
+      ctx.fillStyle = "rgba(" + INK + ", " + (c.c <= c.o ? 0.62 : 0.36) + ")";         // up brighter than down
+      ctx.fillRect(x + 2, top, cw - 3, Math.max(2, Math.round(Math.abs(c.c - c.o))));  // body
+    });
 
     // Future: the fan of simulated paths.
     ctx.lineWidth = 0.8;
