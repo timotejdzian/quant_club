@@ -754,6 +754,8 @@ a:focus-visible {
 #contact { position: relative; }
 #contact .container { position: relative; }   /* text stays above the canvas */
 .contact-visual { position: absolute; top: 0; bottom: 0; right: 0; width: 55%; }
+/* Volatility surface switched off for now. Delete this one rule to bring it back. */
+.contact-visual { display: none; }
 .section { position: relative; overflow-x: clip; }
 .section > .container { position: relative; }
 @media (max-width: 900px) {
