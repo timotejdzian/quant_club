@@ -41,8 +41,7 @@ var EVENTS = [
   // { date: "2026-09-15", title: "Uvítací večer", titleEn: "Welcome night",
   //   location: "VŠE, místnost NB 350", description: "Zahájení nového semestru." },
   //
-  { date: "2026-11-26", title: "Wincent workshop",
-    location: "IES FSV UK, místnost 314", locationEn: "IES FSV UK, room 314" },
+  { date: "2026-11-26", title: "Wincent workshop" },
 ];
 
 /* Zobrazí se pod seznamem akcí, pokud nějaké jsou */
